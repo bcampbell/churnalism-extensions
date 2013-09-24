@@ -393,7 +393,7 @@ function installPageMod() {
         data.url("extractor.js"),
         data.url("jquery-1.7.1.min.js"),
         data.url("content.js")],
-//    contentStyleFile: [data.url("unsourced.css")],
+    contentStyleFile: [data.url("ffextpagecontext.css")],
     onAttach: function(worker) {
       console.log("attaching pagemod");
       var url = worker.url;

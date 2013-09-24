@@ -18,6 +18,7 @@ var extract_article = function () {
 //        article = standardize_quotes(article, "'", "'", '"', '"');
         log.info("Article text: ", article);
         title = article_document.get_title();
+        inject_warning_ribbon();
     } catch (e) {
         log.info("UHOH - extract failed: ", e.message);
         article = '';
@@ -34,6 +35,22 @@ var extract_article = function () {
     */
 };
 
+    var prevent_scroll = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+    };
+
+    var inject_warning_ribbon = function (ribbon_url, match_url, loading_url) {
+        $("#churnalism-ribbon").remove();
+
+//        css_url = Churnalism.options.search_server + '/static/styles/ffextpagecontext.css';
+//        jQuery("<link>").attr('rel', 'stylesheet').attr('type', 'text/css').attr('href', css_url).appendTo("head");
+
+        var ribbon_frame = $('<div id="churnalism-ribbon" name="churnalism-ribbon" style="display: none;"><div class="fook">Wheeeeeeee!</div></div>');
+        ribbon_frame.prependTo('body');
+            ribbon_frame.slideDown(400).show();
+    };
 
 extract_article();
 
