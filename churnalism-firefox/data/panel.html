@@ -64,9 +64,9 @@ some article links to try out:
 <!-- show results -->
 {% if isLookupReady %}
 
-<h3>{{ lookupResults.documents.length }} matches:</h3>
+<h3>{{ lookupResults.associations.length }} matches:</h3>
     <ul>
-    {% for doc in lookupResults.documents %}
+    {% for doc in lookupResults.associations %}
     <li>{{ doc.metaData.type }} ({{doc.metaData.source}}): <a href="{{doc.metadata.permalink}}">{{doc.title}}</a></li>
     {% endfor %}
     </ul>

@@ -14,8 +14,17 @@ var SimplePrefs = require("simple-prefs");
 var SimpleStorage = require("simple-storage"); 
 
 
-// some known churn for testing:
-// http://www.dailymail.co.uk/femail/article-2397881/One-seven-adults-long-term-relationship-class-love-life.html
+// This file is divided up into three sections, in order:
+// 1) neutral code - shared between firefox/chrome/whatever
+// 2) grey areas - needs a little more refeactoring
+// 3) platform-specific
+// Take this all with a grain of salt - things are likely to
+// continue breaking for a while.
+
+
+
+//
+// platform-neutral stuff starts here.
 
 /* NOTES:
  * we've got a couple of things to track for each augmented page:
@@ -37,7 +46,7 @@ function TabState(url, guiUpdateFunc) {
   this.lookupResults = null;  // only set if state is 'ready'
 
   this.pageDetails = null; // set by textReady()
-  // might already be a popup active!
+  // might already be a popup active
   this._guiUpdateFunc(this);
 }
 
@@ -49,9 +58,9 @@ TabState.prototype.lookupFinished = function(lookupResults) {
     console.log("SUCCESS");
     var r = lookupResults;
     console.log("Totalrows=" + r.totalRows);
-    console.log("documents: " + r.documents.length);
-    for (var i=0; i<r.documents.length; i++) {
-      var as = r.documents[i];
+    console.log("associations: " + r.associations.length);
+    for (var i=0; i<r.associations.length; i++) {
+      var as = r.associations[i];
       var meta = as.metaData;
       console.log(meta.type + "("+ meta.source + "): " + meta.permalink);
     }
@@ -98,6 +107,7 @@ TabState.prototype.startLookup = function() {
   this.lookupState = "pending";
   this._guiUpdateFunc(this);
 
+  // TODO: factor out platform-specific requests
 
   /* firefox version */
   var req = Request({
@@ -132,14 +142,8 @@ TabState.prototype.startLookup = function() {
 };
 
 
-// return URL for submitting this article to unsourced
-TabState.prototype.getSubmitURL = function() {
-  var submit_url = options.search_server + '/addarticle?url=' + encodeURIComponent(this.url);
-  return submit_url;
-};
 
-
-// some helpers for use in popup.html template (ashe can only do boolean if statements)
+// some helpers for use in panel.html template (ashe can only do boolean if statements)
 TabState.prototype.isLookupNone = function() { return this.lookupState == 'none'; };
 TabState.prototype.isLookupReady = function() { return this.lookupState == 'ready'; };
 TabState.prototype.isLookupPending = function() { return this.lookupState == 'pending'; };
@@ -205,7 +209,7 @@ TabState.prototype.calcWidgetTooltip = function() {
         tooltip_txt = "Search complete:";
         var r = this.lookupResults;
         if( r.success) {
-          tooltip_txt += " " + r.documents.length + " matches";
+          tooltip_txt += " " + r.associations.length + " matches";
         } else {
           tooltip_txt += " failed";
         }
