@@ -14,6 +14,9 @@ var SimplePrefs = require("simple-prefs");
 var SimpleStorage = require("simple-storage"); 
 
 
+// some known churn for testing:
+// http://www.dailymail.co.uk/femail/article-2397881/One-seven-adults-long-term-relationship-class-love-life.html
+
 /* NOTES:
  * we've got a couple of things to track for each augmented page:
  * 1) the lookup request to server. We want to kick this off as early
@@ -30,18 +33,32 @@ function TabState(url, guiUpdateFunc) {
   this.contentReady = false;
   this._guiUpdateFunc = guiUpdateFunc;
 
-  this.overlaysApplied = false; // have overlays been injected into the page?
-
   this.lookupState = "none"; // none, pending, ready, error
   this.lookupResults = null;  // only set if state is 'ready'
 
-  this.pageDetails = null; // set by domReady()
+  this.pageDetails = null; // set by textReady()
   // might already be a popup active!
   this._guiUpdateFunc(this);
 }
 
 TabState.prototype.lookupFinished = function(lookupResults) {
   console.log("lookupFinished");
+  console.log("--------------------------");
+  if(lookupResults.success) {
+    console.log("SUCCESS");
+    var r = lookupResults;
+    console.log("Totalrows=" + r.totalRows);
+    console.log("documents: " + r.documents.length);
+    for (var i=0; i<r.documents.length; i++) {
+      var as = r.documents[i];
+      var meta = as.metaData;
+      console.log(meta.type + "("+ meta.source + "): " + meta.permalink);
+    }
+  } else {
+    console.log("FAILED");
+  }
+  console.log("--------------------------");
+
   if(this.lookupState=="none" || this.lookupState=="pending") {
     //
 
@@ -58,29 +75,34 @@ TabState.prototype.lookupError = function() {
   this._guiUpdateFunc(this);
 };
 
-TabState.prototype.domReady = function(pageDetails) {
-//  console.log("domReady (pageDetails.ogType="+pageDetails.ogType+", pageDetails.indicatorsFound="+pageDetails.indicatorsFound+")" );
+
+// to be called when the text from an article is extracted
+TabState.prototype.textReady = function(pageDetails) {
+  console.log("textReady called: " + pageDetails['title']);
   this.pageDetails = pageDetails;
   if(this.contentReady!==true) {
     this.contentReady = true;
-    this._guiUpdateFunc(this);
+    this.startLookup();
   }
 };
 
+
+
 TabState.prototype.startLookup = function() {
   var state = this;
-  var search_url = options.search_server + '/api/lookup?url=' + encodeURIComponent(this.url);
-
+  var search_url = "http://new.churnalism.com/search/";
 
   console.log("startLookup("+this.url+")");
   this.lookupState = "pending";
   this._guiUpdateFunc(this);
 
-  return;
 
   /* firefox version */
   var req = Request({
     url: search_url,
+    content: { title: this.pageDetails.title,
+      text: this.pageDetails.text
+    },
     onComplete: function (response) {
       if( response.status==200) {
         state.lookupFinished(response.json);
@@ -89,7 +111,7 @@ TabState.prototype.startLookup = function() {
       }
     }
     /* TODO: onError? */
-  }).get();
+  }).post();
   /* chrome version */
   /*
   $.ajax({
@@ -142,17 +164,7 @@ TabState.prototype.isSourcingRequired = function() {
 
 
 TabState.prototype.calcWidgetIconState = function() {
-  if(this.isSourcingRequired()) {
-    return "missingsources";
-  }
-
-  if( this.lookupState == 'ready' ) {
-    var ad = this.lookupResults;
-    if( ad.status=='found') {
-      return "sourced";
-    }
-  }
-  return "unsourced";
+  return "";
 };
 
 
@@ -161,12 +173,14 @@ TabState.prototype.calcWidgetTooltip = function() {
   var tooltip_txt = "";
   switch( this.lookupState ) {
     case "none":
+      tooltip_txt = "waiting for page to load...";
       break;
     case "pending":
-      tooltip_txt = "checking unsourced.org";
+      tooltip_txt = "checking new.churnalism.com...";
       break;
     case "ready":
       {
+        /*
         var ad = this.lookupResults;
         if( ad.status=='found') {
           var src_txt;
@@ -185,15 +199,21 @@ TabState.prototype.calcWidgetTooltip = function() {
         } else {
           tooltip_txt = "no sources or warning labels";
         } 
+        */
+        tooltip_txt = "Search complete:";
+        var r = this.lookupResults;
+        if( r.success) {
+          tooltip_txt += " " + r.documents.length + " matches";
+        } else {
+          tooltip_txt += " failed";
+        }
       }
       break;
     case "error":
+      tooltip_txt = "Error";
       break;
   }
 
-  if(this.isSourcingRequired()) {
-    tooltip_txt = "Sources missing";
-  }
   return tooltip_txt;
 };
 
@@ -264,7 +284,7 @@ function getBuiltInWhiteList() {
 }
 
 function getBuiltInBlackList() {
-  return ["unsourced.org"];
+  return [];
 }
 
 //
@@ -339,15 +359,6 @@ var compileBlacklist = function () {
  */
 function update_gui(worker,state)
 {
-  // ready to add overlays to the webpage (eg warning labels)?
-  if(state.lookupState=="ready" && state.contentReady==true && state.overlaysApplied!==true) {
-    if( state.lookupResults.labels ) {
-      if(options.show_overlays) {
-        worker.port.emit('showWarningLabels', state.lookupResults.labels);
-        state.overlaysApplied = true;
-      }
-    }
-  }
 
   update_widget(worker.tab);
 }
@@ -357,21 +368,22 @@ function update_gui(worker,state)
 // update widget and popup window
 function update_widget(tab)
 {
-  var state = tab.unsourced;
-  /*
-  var widget = unsourcedWidget.getView(tab.window);
+  var state = tab.ourstate;
+  var widget = ourWidget.getView(tab.window);
 
   if( state === undefined || state === null ) {
     // not tracking this tab
-    widget.port.emit('reconfig', {'icon':  "unsourced"});
-    widget.tooltip = "unsourced.org extension";
+    widget.port.emit('reconfig', {'msg':  ">---<"});
+    widget.tooltip = "churnalism extension";
   } else {
-    // reflect the unsourced state
-    widget.port.emit('reconfig', {'icon': state.calcWidgetIconState()});
+    // reflect the state
+    var msg = state.calcWidgetTooltip();
+    widget.port.emit('reconfig', {'msg': msg});
     widget.tooltip = state.calcWidgetTooltip();
   }
 
   // if the tab is active, update the popup window
+  /*
   if(tabs.activeTab===tab) {
     unsourcedPopup.port.emit('bind', state, options);
   }
@@ -399,11 +411,30 @@ function installPageMod() {
       var url = worker.url;
       // we store some extra state on the tab
       var state = new TabState(url, function (state) {update_gui(worker,state);});
-      worker.tab.unsourced = state;
+      worker.tab.ourstate = state;
+      update_gui(worker,state);
+
+      // update our state when page text has been extracted...
+      worker.port.on('textExtracted', function(pageDetails) {
+        state.textReady(pageDetails);
+      });
+
+
     }
   });
 }
 
+
+function installWidget() {
+  return widget.Widget({
+    id: "our-widget",
+    label: " ",
+    width: 200,
+    contentURL: data.url("widget.html"),
+    contentScriptFile: data.url("widget.js")
+    /*panel: unsourcedPopup */
+  });
+}
 
 tabs.on('activate', update_widget );
 
@@ -434,6 +465,7 @@ function startup() {
 }
 
 console.log("starting up");
+ourWidget = installWidget();
 startup();
 console.log("startup done");
 

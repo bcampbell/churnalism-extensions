@@ -25,6 +25,8 @@ var extract_article = function () {
         title = '';
     }
 
+    pageDetails = {'title': title, 'text': article};
+    self.port.emit("textExtracted", pageDetails);
     /*
     emitrr.sendRequest({
         method: 'articleExtracted',
