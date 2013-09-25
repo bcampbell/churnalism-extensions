@@ -42,6 +42,7 @@ function TabState(url, guiUpdateFunc) {
 }
 
 TabState.prototype.lookupFinished = function(lookupResults) {
+  /*
   console.log("lookupFinished");
   console.log("--------------------------");
   if(lookupResults.success) {
@@ -58,6 +59,7 @@ TabState.prototype.lookupFinished = function(lookupResults) {
     console.log("FAILED");
   }
   console.log("--------------------------");
+*/
 
   if(this.lookupState=="none" || this.lookupState=="pending") {
     //
@@ -373,7 +375,7 @@ function update_widget(tab)
 
   if( state === undefined || state === null ) {
     // not tracking this tab
-    widget.port.emit('reconfig', {'msg':  ">---<"});
+    widget.port.emit('reconfig', {'msg':  "Page not yet loaded"});
     widget.tooltip = "churnalism extension";
   } else {
     // reflect the state
@@ -383,14 +385,28 @@ function update_widget(tab)
   }
 
   // if the tab is active, update the popup window
-  /*
   if(tabs.activeTab===tab) {
-    unsourcedPopup.port.emit('bind', state, options);
+    ourPanel.port.emit('bind', state, options);
   }
-  */
 }
 
 
+
+ourPanel = Panel( {
+  contentURL: data.url("panel.html"),
+  contentScriptFile: [data.url("ashe.js"),data.url("panel.js")],
+  width: 400,
+  height: 600,
+});
+
+ourPanel.on('show', function() {
+  var state = tabs.activeTab.ourstate;
+  if(state === undefined) {
+    ourPanel.port.emit('bind', null,options);
+  } else {
+    ourPanel.port.emit('bind', state,options);
+  }
+});
 
 
 
@@ -431,8 +447,8 @@ function installWidget() {
     label: " ",
     width: 200,
     contentURL: data.url("widget.html"),
-    contentScriptFile: data.url("widget.js")
-    /*panel: unsourcedPopup */
+    contentScriptFile: data.url("widget.js"),
+    panel: ourPanel
   });
 }
 
@@ -461,7 +477,6 @@ function startup() {
   compileBlacklist();
 
   installPageMod();
-
 }
 
 console.log("starting up");

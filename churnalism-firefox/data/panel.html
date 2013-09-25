@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <title>churnalism extension</title>
+
+    <link rel="stylesheet" href="style.css" type="text/css">
+<!--
+    <style>
+      body {
+        min-width:357px;
+        overflow-x:hidden;
+      }
+    </style>
+    <script src="/js/lib/ashe.js"></script>
+    <script src="/js/lib/parseuri.js"></script>
+    <script src="/js/popup.js"></script>
+-->
+</head>
+  <body>
+
+
+
+<!-- template to placeholder content, on pages we're not active on -->
+<script id="popup-inactive-tmpl" type="text/x-jquery-tmpl">
+<p>
+Churn info should appear here. Works like this:
+<ol>
+<li>User enters a url/clicks on a link/whatever</li>
+<li>extension waits for core part of page to load (can take a good few seconds, depending on the scripts in use - most newspapers are pretty bad here, with heaps of analytics crap)</li>
+<li>the article text is extracted and sent of to churnalism.com</li>
+<li>churnalism.com sends back some results, which are shown here.</li>
+</ol>
+</p>
+
+<p>
+some article links to try out:
+<ul>
+<li><a target="_blank" href="http://www.dailymail.co.uk/femail/article-2397881/One-seven-adults-long-term-relationship-class-love-life.html">http://www.dailymail.co.uk/femail/article-2397881/One-seven-adults-long-term-relationship-class-love-life.html</a></li>
+<li>
+<a target="_blank" href="http://www.businessinsider.com.au/get-hundreds-for-your-old-phones-2013-2">http://www.businessinsider.com.au/get-hundreds-for-your-old-phones-2013-2</a>
+</li>
+<li>
+<a target="_blank" href="http://www.express.co.uk/news/uk/380731/We-still-look-on-the-bright-side-of-life">http://www.express.co.uk/news/uk/380731/We-still-look-on-the-bright-side-of-life</a>
+</li>
+
+
+</ul>
+</p>
+</script>
+
+
+
+
+
+<!-- template to display details about a page we're tracking -->
+<script id="popup-details-tmpl" type="text/x-jquery-tmpl">
+{% if isDebugSet %}
+  <pre>
+  {{getDebugTxt}}
+  </pre>
+</pre>
+{% endif %}
+
+<!-- show results -->
+{% if isLookupReady %}
+
+<h3>{{ lookupResults.documents.length }} matches:</h3>
+    <ul>
+    {% for doc in lookupResults.documents %}
+    <li>{{ doc.metaData.type }} ({{doc.metaData.source}}): <a href="{{doc.metadata.permalink}}">{{doc.title}}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+<p>Lookupstate: '{{lookupState}}'</p>
+{% endif %}
+</script>
+
+
+
+<!--  <header> 
+    <h3><img src="/img/logo.png" alt="Unsourced logo" /></h3>
+  </header>
+-->
+  <div id="content">
+  </div>
+  <footer>
+  </footer>
+  </body>
+</html>
+

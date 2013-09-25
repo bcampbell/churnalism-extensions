@@ -1,4 +1,3 @@
-console.log("IN Content.js");
 var log = new LogWrapper(LogWrapper.DEBUG);
 
 var standardize_quotes = function (text, leftsnglquot, rightsnglquot, leftdblquot, rightdblquot) {
@@ -18,7 +17,7 @@ var extract_article = function () {
 //        article = standardize_quotes(article, "'", "'", '"', '"');
         log.info("Article text: ", article);
         title = article_document.get_title();
-        inject_warning_ribbon();
+        //inject_warning_ribbon();
     } catch (e) {
         log.info("UHOH - extract failed: ", e.message);
         article = '';
@@ -37,6 +36,9 @@ var extract_article = function () {
     */
 };
 
+
+
+/*
     var prevent_scroll = function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -53,6 +55,6 @@ var extract_article = function () {
         ribbon_frame.prependTo('body');
             ribbon_frame.slideDown(400).show();
     };
-
+*/
 extract_article();
 
