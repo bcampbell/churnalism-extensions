@@ -15,7 +15,8 @@ var extract_article = function () {
         var article_document = new ExtractedDocument(document);
         article = article_document.get_article_text();
 //        article = standardize_quotes(article, "'", "'", '"', '"');
-        log.info("Article text: ", article);
+//        log.info("Article text: ", article);
+        log.debug("Article text extracted");
         title = article_document.get_title();
         //inject_warning_ribbon();
     } catch (e) {
