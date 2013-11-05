@@ -1,4 +1,6 @@
 var Request = require("request").Request;
+var cookSearchResults = require("match").cookSearchResults;
+var addHelpers = require("match").addHelpers;
 
 // TabState tracks all the stuff we want to track for each tab
 
@@ -49,9 +51,13 @@ TabState.prototype.lookupFinished = function(lookupResults) {
   if(this.lookupState=="none" || this.lookupState=="pending") {
     //
 
-    this.lookupResults = lookupResults;    
+    // add the text we searched on - server doesn't return it
+    lookupResults.text = this.pageDetails.text;
+    this.lookupResults = addHelpers(cookSearchResults(lookupResults));    
     this.lookupState = "ready";
 
+    console.log("cooked:");
+    console.log(JSON.stringify(this.lookupResults,null," "));
     this._guiUpdateFunc(this);
   }
 };

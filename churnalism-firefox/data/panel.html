@@ -3,7 +3,7 @@
   <head>
     <title>churnalism extension</title>
 
-    <link rel="stylesheet" href="style.css" type="text/css">
+    <link rel="stylesheet" href="bootstrap.min.css" type="text/css">
 <!--
     <style>
       body {
@@ -18,62 +18,57 @@
 </head>
   <body>
 
-
-
-<!-- template to placeholder content, on pages we're not active on -->
-<script id="popup-inactive-tmpl" type="text/x-jquery-tmpl">
-<p>
-Churn info should appear here. Works like this:
-<ol>
-<li>User enters a url/clicks on a link/whatever</li>
-<li>extension waits for core part of page to load (can take a good few seconds, depending on the scripts in use - most newspapers are pretty bad here, with heaps of analytics crap)</li>
-<li>the article text is extracted and sent of to churnalism.com</li>
-<li>churnalism.com sends back some results, which are shown here.</li>
-</ol>
-</p>
-
-<p>
-some article links to try out:
-<ul>
-<li>
- <a target="_blank" href="http://www.dailymail.co.uk/news/article-2475927/Weekend-starts-2-39pm-today-workers-start-switching-Friday-afternoons.html">http://www.dailymail.co.uk/news/article-2475927/Weekend-starts-2-39pm-today-workers-start-switching-Friday-afternoons.html</a>
- </li>
-<li>
- <a target="_blank" href="http://www.telappliant.com/voip-news/801653107/could-voip-help-you-keep-workers-focused-on-fridays/">http://www.telappliant.com/voip-news/801653107/could-voip-help-you-keep-workers-focused-on-fridays/</a>
-</li>
-<li>
- <a target="_blank" href="http://www.dailymail.co.uk/health/article-2462893/Average-Briton-hit-health-wake-39.html">http://www.dailymail.co.uk/health/article-2462893/Average-Briton-hit-health-wake-39.html</a>
-</li>
-</ul>
-</p>
+<script id="search-results-tmpl" type="text/x-jquery-tmpl">
+<table class="table table-responsive table-condensed">
+    <thead>
+      <tr>
+        <th id="count" class="headingTitle" colspan="2"> <%=title()%> similar to text entered</th>
+        <th><div id="cut"></div></th>
+        <th><div id="paste"></div></th>
+        <th><div id="overlap"></div></th>
+        <th>Visualisation</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </script>
 
 
 
 
-
-<!-- template to display details about a page we're tracking -->
-<script id="popup-details-tmpl" type="text/x-jquery-tmpl">
-{% if isDebugSet %}
-  <pre>
-  {{getDebugTxt}}
-  </pre>
-</pre>
-{% endif %}
-
-<!-- show results -->
-{% if isLookupReady %}
-
-<h3>{{ lookupResults.associations.length }} matches:</h3>
-    <ul>
-    {% for doc in lookupResults.associations %}
-    <li>{{ doc.metaData.type }} ({{doc.metaData.source}}): <a href="{{doc.metadata.permalink}}">{{doc.title}}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-<p>Lookupstate: '{{lookupState}}'</p>
-{% endif %}
+<script id="resultTemplate" type="text/x-jquery-tmpl">
+  <td class="ratingCell">
+      <img src="/public/images/recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
+      <img src="/public/images/recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
+      <img src="/public/images/recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
+  </td>
+  <td> 
+      <a class="title" href="<%=permalink()%>"><%=shortTitle()%></a><br/>
+      <%if (this.type=="newsarticle"){%>
+      <a class="journalists"><%=journalists()%></a>
+      <a class="newspaper" href="<%=journalisted()%>"><%=source()%></a> 
+      <%}else{%>
+      <span class="source"><%=source()%>, </span>
+      <%}%> 
+      <span class="published"><%=published()%></span>
+  </td>
+  <td help="Percentage of entered text used in news article">
+      <p class="similarity data"><%=cut()%>%</p>
+      <p class="caption">cut</p>
+  </td>
+  <td help="Percentage of news article that is copied from entered text">
+      <p class="recycling data"><%=paste()%>%</p>
+      <small class="caption">pasted</p>
+  </td>
+  <td  help="Number of consecutive characters that appear in both entered text and news article">
+      <p class="characters data"><%=overlap()%></p>
+      <p class="caption">characters<br/>overlap</p>
+  </td>
+  <td id="visualisation" class="visualisationCell">
+  </td>
 </script>
+
+
 
 
 
@@ -81,6 +76,7 @@ some article links to try out:
     <h3><img src="/img/logo.png" alt="Unsourced logo" /></h3>
   </header>
 -->
+  <div id="underscoretest">BEFORE</div>
   <div id="content">
   </div>
   <footer>

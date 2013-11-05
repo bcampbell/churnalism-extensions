@@ -180,7 +180,15 @@ function update_widget(tab)
 
 ourPanel = Panel( {
   contentURL: data.url("panel.html"),
-  contentScriptFile: [data.url("ashe.js"),data.url("panel.js")],
+  contentScriptFile: [
+    data.url("jquery-1.7.1.min.js"),
+    data.url("underscore.js"),
+    data.url("underscore.string.js"),
+    data.url("moment.min.js"),
+    // our stuff
+    data.url("match.js"),
+    data.url("panel.js")],
+  contentStyleFile: [data.url("bootstrap.min.css")],
   width: 400,
   height: 600,
 });
@@ -268,6 +276,7 @@ function startup() {
 console.log("starting up");
 ourWidget = installWidget();
 startup();
+tabs.open(data.url("intro.html"));
 console.log("startup done");
 
 
