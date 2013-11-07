@@ -9,12 +9,12 @@
 
 
 <script id="not-tracking-tmpl" type="text/x-jquery-tmpl">
-    <p>This page is not being checked for churn, probably because it's not on our whitelist of newspaper sites.</p>
-<a class="do-lookup" href="#">Check it now</a>
+  <p>This page has not been checked for churn.</p>
+  <a class="do-lookup" href="#">Check it now</a>
 </script>
 
 <script id="please-wait-tmpl" type="text/x-jquery-tmpl">
-    <p>Please wait - <%= msg %></p>
+    <p><img src="busy.gif"/> Please wait: <%= msg %></p>
 </script>
 
 <!-- main template for showing search results -->
@@ -26,7 +26,6 @@
         <th><div id="cut"></div></th>
         <th><div id="paste"></div></th>
         <th><div id="overlap"></div></th>
-        <th>Visualisation</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -34,16 +33,15 @@
 </script>
 
 
-
 <!-- template for displaying an individual matching document -->
 <script id="match-tmpl" type="text/x-jquery-tmpl">
   <td class="ratingCell">
-      <img src="/public/images/recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
-      <img src="/public/images/recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
-      <img src="/public/images/recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
+      <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
+      <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
+      <img src="recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
   </td>
   <td> 
-      <a class="title" href="<%=permalink()%>"><%=shortTitle()%></a><br/>
+      <a class="title" target="_blank" href="<%=permalink()%>"><%=shortTitle()%></a><br/>
       <%if (this.type=="newsarticle"){%>
       <a class="journalists"><%=journalists()%></a>
       <a class="newspaper" href="<%=journalisted()%>"><%=source()%></a> 
@@ -64,12 +62,11 @@
       <p class="characters data"><%=overlap()%></p>
       <p class="caption">characters<br/>overlap</p>
   </td>
-  <td id="visualisation" class="visualisationCell">
-  </td>
 </script>
 
 <header>
-Churnalism extension
+<h3>Churnalism extension</h3>
+<hr/>
 </header>
 <div id="content">
 </div>

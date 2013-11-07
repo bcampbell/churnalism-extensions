@@ -151,10 +151,6 @@ function update_gui(worker,state)
 
   update_widget(worker.tab);
 
-  // if the tab is active, update the popup window
-  if(tabs.activeTab===worker.tab) {
-    ourPanel.port.emit('bind', state, options);
-  }
 }
 
 
@@ -176,6 +172,10 @@ function update_widget(tab)
     widget.tooltip = state.calcWidgetTooltip();
   }
 
+  // if the tab is active, update the popup window
+  if(tabs.activeTab===tab) {
+    ourPanel.port.emit('bind', state, options);
+  }
 }
 
 
@@ -206,12 +206,21 @@ ourPanel.on('show', function() {
 
 ourPanel.port.on("doLookup", function() {
   console.log("doLookup Requested!");
-  tab = tabs.activeTab;
-  console.log(" url: ", tab.url);
+  var tab = tabs.activeTab;
+
+  var worker = tab.attach({
+    contentScriptFile: [data.url("logwrapper.js"),
+        data.url("extractor.js"),
+        data.url("jquery-1.7.1.min.js"),
+        data.url("content.js")],
+  });
+
+  augmentTab(worker);
 });
 
 
 // TODO: ditch pagemod altogether, use tab.attach() to inject content script!
+// (on tab pageshow event?)
 function installPageMod() {
 
   pageMod.PageMod({
@@ -227,17 +236,7 @@ function installPageMod() {
       var url = worker.url;
       if( onWhitelist(url) ) {
         if( !onBlacklist(url) ) {
-          console.log("begin tracking tab: ", url);
-          // we store some extra state on the tab
-          var state = new TabState(url, function (state) {update_gui(worker,state);});
-          worker.tab.ourstate = state;
-          update_gui(worker,state);
-
-          // update our state when page text has been extracted...
-          worker.port.on('textExtracted', function(pageDetails) {
-            state.textReady(pageDetails);
-          });
-
+          augmentTab(worker);
         } else {
           console.log("backlisted: ", url);
         }
@@ -248,6 +247,22 @@ function installPageMod() {
   });
 }
 
+
+// add our state-tracking stuff to a tab
+function augmentTab(worker) {
+  var tab=worker.tab;
+  var url = tab.url;
+  console.log("begin tracking tab: ", url);
+
+  var state = new TabState(url, function (state) {update_gui(worker,state);});
+  worker.tab.ourstate = state;
+  update_gui(worker,state);
+
+  // update our state when page text has been extracted...
+  worker.port.on('textExtracted', function(pageDetails) {
+    state.textReady(pageDetails);
+  });
+}
 
 
 

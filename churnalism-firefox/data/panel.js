@@ -22,7 +22,7 @@ function bind(state,options) {
   }
 
   if( !state.pageDetails ) {
-    $('#content').html(pleaseWaitTemplate({msg:"Waiting for page to finish loading"}));
+    $('#content').html(pleaseWaitTemplate({msg:"The page is still loading"}));
     return;
   }
       

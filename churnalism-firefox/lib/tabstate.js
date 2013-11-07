@@ -49,15 +49,20 @@ TabState.prototype.lookupFinished = function(lookupResults) {
 */
 
   if(this.lookupState=="none" || this.lookupState=="pending") {
-    //
+
+//    console.log(JSON.stringify(lookupResults,null," "));
 
     // add the text we searched on - server doesn't return it
     lookupResults.text = this.pageDetails.text;
+    // server also leaves out associations member if no results.
+    // add it in here to make other code easier
+    if( lookupResults.associations === undefined ) {
+      lookupResults.associations = [];
+    }
+
     this.lookupResults = addHelpers(cookSearchResults(lookupResults));    
     this.lookupState = "ready";
 
-    console.log("cooked:");
-    console.log(JSON.stringify(this.lookupResults,null," "));
     this._guiUpdateFunc(this);
   }
 };
