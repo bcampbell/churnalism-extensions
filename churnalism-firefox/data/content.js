@@ -57,5 +57,9 @@ var extract_article = function () {
             ribbon_frame.slideDown(400).show();
     };
 */
-extract_article();
+
+$( document ).ready( function() {
+  extract_article();
+});
+
 

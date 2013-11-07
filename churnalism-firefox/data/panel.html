@@ -4,20 +4,20 @@
     <title>churnalism extension</title>
 
     <link rel="stylesheet" href="bootstrap.min.css" type="text/css">
-<!--
-    <style>
-      body {
-        min-width:357px;
-        overflow-x:hidden;
-      }
-    </style>
-    <script src="/js/lib/ashe.js"></script>
-    <script src="/js/lib/parseuri.js"></script>
-    <script src="/js/popup.js"></script>
--->
-</head>
+  </head>
   <body>
 
+
+<script id="not-tracking-tmpl" type="text/x-jquery-tmpl">
+    <p>This page is not being checked for churn, probably because it's not on our whitelist of newspaper sites.</p>
+<a class="do-lookup" href="#">Check it now</a>
+</script>
+
+<script id="please-wait-tmpl" type="text/x-jquery-tmpl">
+    <p>Please wait - <%= msg %></p>
+</script>
+
+<!-- main template for showing search results -->
 <script id="search-results-tmpl" type="text/x-jquery-tmpl">
 <table class="table table-responsive table-condensed">
     <thead>
@@ -35,8 +35,8 @@
 
 
 
-
-<script id="resultTemplate" type="text/x-jquery-tmpl">
+<!-- template for displaying an individual matching document -->
+<script id="match-tmpl" type="text/x-jquery-tmpl">
   <td class="ratingCell">
       <img src="/public/images/recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
       <img src="/public/images/recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
@@ -68,19 +68,13 @@
   </td>
 </script>
 
-
-
-
-
-<!--  <header> 
-    <h3><img src="/img/logo.png" alt="Unsourced logo" /></h3>
-  </header>
--->
-  <div id="underscoretest">BEFORE</div>
-  <div id="content">
-  </div>
-  <footer>
-  </footer>
-  </body>
+<header>
+Churnalism extension
+</header>
+<div id="content">
+</div>
+<footer>
+</footer>
+</body>
 </html>
 

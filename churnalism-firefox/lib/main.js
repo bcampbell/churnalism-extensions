@@ -20,47 +20,6 @@ var parseUri = require("parseuri").parseUri;
 options = {};
 
 
-// returns a function that can test a url against the list of sites
-// a leading dot indicates any subdomain will do, eg:
-//   .example.com             - matches anything.example.com
-// a trailing ... is a wildcard, eg:
-//   example.com/news/...    - matches example.com/news/moon-made-of-cheese.html
-function buildMatchFn(sites) {
-
-  var matchers = sites.map(function(site) {
-    var pat = site;
-    var wild_host = (pat[0]=='.');
-    var wild_path = (pat.slice(-3)=='...');
-
-    if(wild_host) {
-      pat = pat.slice(1);
-    }
-    if(wild_path) {
-      pat = pat.slice(0,-3);
-    }
-
-    pat = pat.replace( /[.]/g, "[.]");
-
-    if(wild_host) {
-      pat = '[^/]*' + pat;
-    }
-
-    pat = "https?://" + pat + '.*';
-
-    return new RegExp(pat);
-  });
-
-
-  return function (url) {
-    for (var idx = 0; idx < matchers.length; idx++) {
-      var re = matchers[idx];
-        if( re.test(url)) {
-              return true;
-        }
-    }
-    return false;
-  };
-}
 
 
 /**********************************
@@ -129,6 +88,47 @@ var compileBlacklist = function () {
 
 
 
+// returns a function that can test a url against the list of sites
+// a leading dot indicates any subdomain will do, eg:
+//   .example.com             - matches anything.example.com
+// a trailing ... is a wildcard, eg:
+//   example.com/news/...    - matches example.com/news/moon-made-of-cheese.html
+function buildMatchFn(sites) {
+
+  var matchers = sites.map(function(site) {
+    var pat = site;
+    var wild_host = (pat[0]=='.');
+    var wild_path = (pat.slice(-3)=='...');
+
+    if(wild_host) {
+      pat = pat.slice(1);
+    }
+    if(wild_path) {
+      pat = pat.slice(0,-3);
+    }
+
+    pat = pat.replace( /[.]/g, "[.]");
+
+    if(wild_host) {
+      pat = '[^/]*' + pat;
+    }
+
+    pat = "https?://" + pat + '.*';
+
+    return new RegExp(pat);
+  });
+
+
+  return function (url) {
+    for (var idx = 0; idx < matchers.length; idx++) {
+      var re = matchers[idx];
+        if( re.test(url)) {
+              return true;
+        }
+    }
+    return false;
+  };
+}
 
 
 
@@ -144,11 +144,17 @@ var compileBlacklist = function () {
 /* update the gui to reflect the current state
  * the state tracker object calls this every time something changes
  * (eg lookup request returns)
+ * state can be null/undefined if current tab not being tracked
  */
 function update_gui(worker,state)
 {
 
   update_widget(worker.tab);
+
+  // if the tab is active, update the popup window
+  if(tabs.activeTab===worker.tab) {
+    ourPanel.port.emit('bind', state, options);
+  }
 }
 
 
@@ -170,10 +176,6 @@ function update_widget(tab)
     widget.tooltip = state.calcWidgetTooltip();
   }
 
-  // if the tab is active, update the popup window
-  if(tabs.activeTab===tab) {
-    ourPanel.port.emit('bind', state, options);
-  }
 }
 
 
@@ -202,14 +204,19 @@ ourPanel.on('show', function() {
   }
 });
 
+ourPanel.port.on("doLookup", function() {
+  console.log("doLookup Requested!");
+  tab = tabs.activeTab;
+  console.log(" url: ", tab.url);
+});
 
 
-
+// TODO: ditch pagemod altogether, use tab.attach() to inject content script!
 function installPageMod() {
 
   pageMod.PageMod({
     include: [ "http://*", "https://*" ],
-    contentScriptWhen: 'ready',
+    contentScriptWhen: 'start',
     attachTo: 'top',  // only attach to top, not iframes
     contentScriptFile: [data.url("logwrapper.js"),
         data.url("extractor.js"),
@@ -217,22 +224,32 @@ function installPageMod() {
         data.url("content.js")],
     contentStyleFile: [data.url("ffextpagecontext.css")],
     onAttach: function(worker) {
-      console.log("attaching pagemod");
       var url = worker.url;
-      // we store some extra state on the tab
-      var state = new TabState(url, function (state) {update_gui(worker,state);});
-      worker.tab.ourstate = state;
-      update_gui(worker,state);
+      if( onWhitelist(url) ) {
+        if( !onBlacklist(url) ) {
+          console.log("begin tracking tab: ", url);
+          // we store some extra state on the tab
+          var state = new TabState(url, function (state) {update_gui(worker,state);});
+          worker.tab.ourstate = state;
+          update_gui(worker,state);
 
-      // update our state when page text has been extracted...
-      worker.port.on('textExtracted', function(pageDetails) {
-        state.textReady(pageDetails);
-      });
+          // update our state when page text has been extracted...
+          worker.port.on('textExtracted', function(pageDetails) {
+            state.textReady(pageDetails);
+          });
 
-
+        } else {
+          console.log("backlisted: ", url);
+        }
+      } else {
+          console.log("not on whitelist: ", url);
+      }
     }
   });
 }
+
+
+
 
 
 function installWidget() {
