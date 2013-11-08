@@ -50,7 +50,7 @@ TabState.prototype.lookupFinished = function(lookupResults) {
 
   if(this.lookupState=="none" || this.lookupState=="pending") {
 
-//    console.log(JSON.stringify(lookupResults,null," "));
+    console.log(JSON.stringify(lookupResults,null," "));
 
     // add the text we searched on - server doesn't return it
     lookupResults.text = this.pageDetails.text;

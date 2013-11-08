@@ -3,7 +3,7 @@
   <head>
     <title>churnalism extension</title>
 
-    <link rel="stylesheet" href="bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="panel.css" type="text/css">
   </head>
   <body>
 
@@ -17,56 +17,40 @@
     <p><img src="busy.gif"/> Please wait: <%= msg %></p>
 </script>
 
-<!-- main template for showing search results -->
-<script id="search-results-tmpl" type="text/x-jquery-tmpl">
-<table class="table table-responsive table-condensed">
-    <thead>
-      <tr>
-        <th id="count" class="headingTitle" colspan="2"> <%=title()%> similar to text entered</th>
-        <th><div id="cut"></div></th>
-        <th><div id="paste"></div></th>
-        <th><div id="overlap"></div></th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<!-- main template for showing no results -->
+<script id="search-no-results-tmpl" type="text/x-jquery-tmpl">
+Found no press releases matching this article.
 </script>
 
+<!-- main template for showing search results -->
+<script id="search-results-tmpl" type="text/x-jquery-tmpl">
+    <p>Uhoh... this article looks like it might be based on a press release:</p>
+<table class="results-list">
+</table>
+</script>
 
 <!-- template for displaying an individual matching document -->
 <script id="match-tmpl" type="text/x-jquery-tmpl">
-  <td class="ratingCell">
+  <tr class="match-item">
+  <td class="rating">
       <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
   </td>
-  <td> 
+  <td class="pr-title"> 
       <a class="title" target="_blank" href="<%=permalink()%>"><%=shortTitle()%></a><br/>
-      <%if (this.type=="newsarticle"){%>
-      <a class="journalists"><%=journalists()%></a>
-      <a class="newspaper" href="<%=journalisted()%>"><%=source()%></a> 
-      <%}else{%>
       <span class="source"><%=source()%>, </span>
-      <%}%> 
       <span class="published"><%=published()%></span>
   </td>
-  <td help="Percentage of entered text used in news article">
-      <p class="similarity data"><%=cut()%>%</p>
-      <p class="caption">cut</p>
+  <td class="reuse-metric">
+      <span class="metric"><%=paste()%>%</span> <span class="metric-label">recycled</span>
+      <span class="metric"><%=overlap()%></span> <span class="metric-label">chars</span>
   </td>
-  <td help="Percentage of news article that is copied from entered text">
-      <p class="recycling data"><%=paste()%>%</p>
-      <small class="caption">pasted</p>
-  </td>
-  <td  help="Number of consecutive characters that appear in both entered text and news article">
-      <p class="characters data"><%=overlap()%></p>
-      <p class="caption">characters<br/>overlap</p>
-  </td>
+  </tr>
 </script>
 
 <header>
-<h3>Churnalism extension</h3>
-<hr/>
+<h1>Churnalism info</h1>
 </header>
 <div id="content">
 </div>

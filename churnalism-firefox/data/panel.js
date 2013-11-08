@@ -1,5 +1,6 @@
 
 // templates for showing the search results
+var searchNoResultsTemplate = _.template($('#search-no-results-tmpl').html());
 var searchResultsTemplate = _.template($('#search-results-tmpl').html());
 var matchTemplate = _.template($('#match-tmpl').html());
 
@@ -25,7 +26,7 @@ function bind(state,options) {
     $('#content').html(pleaseWaitTemplate({msg:"The page is still loading"}));
     return;
   }
-      
+ 
   if( !state.lookupResults ) {
     $('#content').html(pleaseWaitTemplate({msg:"Checking with churnalism.com"}));
     return;
@@ -33,17 +34,23 @@ function bind(state,options) {
 
   // bind on all the helper functions that didn't get passed through with the data
   var results = addHelpers(state.lookupResults);
-  $('#content').html(searchResultsTemplate(results));
 
-  var tbod = $('#content tbody');
-  // now format and insert each matching document
-  _.each( results.associations, function(doc) {
-    doc.parent = results;
-    tbod.append(matchTemplate(doc));
-  });
+  results.pressReleases = _.filter(results.associations,function(doc) {return doc.metaData.type=="press release";});
+
+  if(results.pressReleases.length > 0 ) {
+    $('#content').html(searchResultsTemplate(results));
+
+    // now format and insert each matching document
+    var prList = $('.results-list');
+    _.each( results.pressReleases, function(doc) {
+      doc.parent = results;
+      prList.append(matchTemplate(doc));
+    });
+  } else {
+    $('#content').html(searchNoResultsTemplate(results));
+  }
 }
 
 
 self.port.on("bind", bind);
-
 

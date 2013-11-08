@@ -192,7 +192,7 @@ ourPanel = Panel( {
     data.url("panel.js")],
   contentStyleFile: [data.url("bootstrap.min.css")],
   width: 400,
-  height: 600,
+  height: 300,
 });
 
 ourPanel.on('show', function() {
