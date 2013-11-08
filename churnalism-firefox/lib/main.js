@@ -156,21 +156,31 @@ function update_gui(worker,state)
 
 
 // update widget and popup window
+// TODO: don't need tab param! should always reflect the current tab 
 function update_widget(tab)
 {
+  tab = tabs.activeTab;
   var state = tab.ourstate;
   var widget = ourWidget.getView(tab.window);
 
-  if( state === undefined || state === null ) {
-    // not tracking this tab
-    widget.port.emit('reconfig', {'msg':  "Page not yet loaded"});
-    widget.tooltip = "churnalism extension";
-  } else {
-    // reflect the state
-    var msg = state.calcWidgetTooltip();
-    widget.port.emit('reconfig', {'msg': msg});
-    widget.tooltip = state.calcWidgetTooltip();
+  var icon = 'off';
+  var msg = '';
+  if( state !== undefined && state !== null ) {
+    if( state.lookupResults ) {
+      if( state.lookupResults.associations.length > 0 ) {
+        icon = 'on';
+        msg = "Churn Alert";
+      } else {
+        msg = "No matches";
+      }
+    } else {
+      if(state.lookupState=="pending" || !state.pageDetails ) {
+        msg = "working...";
+      }
+    }
   }
+  widget.port.emit('reconfig', {'msg': msg, 'icon': icon});
+  widget.tooltip = "Churn info";
 
   // if the tab is active, update the popup window
   if(tabs.activeTab===tab) {
@@ -243,6 +253,7 @@ function installPageMod() {
       } else {
           console.log("not on whitelist: ", url);
       }
+
     }
   });
 }

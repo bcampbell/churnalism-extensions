@@ -1,15 +1,11 @@
 body {
     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
     background-color: #fff;
-    color: #888;
+    color: #444;
     padding: 0;
     margin: 0;
 }
 
-.l-horiz {
-    display: block;
-    float:left;
-}
 
 header {
     border-bottom: 1px solid #888;
@@ -21,7 +17,7 @@ header h1 {
     font-size: 120%;
     padding: 0;
     margin: 0;
-    color: #444;
+    color: #000;
 }
 
 
@@ -66,7 +62,7 @@ footer {
 .metric {
     display: block;
     font-size: 120%;
-    color: #444;
+    color: #000;
     padding: 0;
     margin: 0;
 }

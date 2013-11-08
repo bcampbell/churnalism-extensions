@@ -2,13 +2,12 @@
 function reconfig(params) {
 //  console.log("button.js: reconfig");
   var icons = {
-    'missingsources': "nag.gif",
-    'unsourced': "unsourced.png",
-    'sourced': "sourced.png"
+    'off': "recycle-off.png",
+    'on': "recycle-on.png",
   };
 
-//  var icon_img = document.getElementById("icon-img");
-//  icon_img.src = icons[params.icon];
+  var icon_img = document.getElementById("icon-img");
+  icon_img.src = icons[params.icon];
 
   var msg = document.getElementById("widget-msg");
   msg.innerHTML = params['msg'];
