@@ -200,7 +200,7 @@ ourPanel = Panel( {
     // our stuff
     data.url("match.js"),
     data.url("panel.js")],
-  contentStyleFile: [data.url("bootstrap.min.css")],
+//  contentStyleFile: [data.url("bootstrap.min.css")],
   width: 400,
   height: 300,
 });
