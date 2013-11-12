@@ -37,6 +37,14 @@ var extract_article = function () {
     */
 };
 
+self.port.on('highlight', function() {
+  console.log("HIGHLIGHT!");
+});
+
+self.port.on('unhighlight', function() {
+  console.log("UNHIGHLIGHT!");
+});
+
 
 
 /*

@@ -25,7 +25,7 @@ function TabState(url, guiUpdateFunc) {
 
   this.pageDetails = null; // set by textReady()
   // might already be a popup active
-  this._guiUpdateFunc(this);
+//  this._guiUpdateFunc(this);
 }
 
 TabState.prototype.lookupFinished = function(lookupResults) {

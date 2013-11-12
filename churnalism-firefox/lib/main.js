@@ -20,6 +20,16 @@ var parseUri = require("parseuri").parseUri;
 options = {};
 
 
+/* map from tab ids to workers */
+// TODO: use this also for our state tracking?
+tabmap = {};
+
+function getWorker(tab) {
+  return tabmap[tab.id].worker;
+}
+function getState(tab) {
+  return tabmap[tab.id].state;
+}
 
 
 /**********************************
@@ -160,7 +170,7 @@ function update_gui(worker,state)
 function update_widget(tab)
 {
   tab = tabs.activeTab;
-  var state = tab.ourstate;
+  var state = getState(tab);
   var widget = ourWidget.getView(tab.window);
 
   var icon = 'off';
@@ -206,7 +216,7 @@ ourPanel = Panel( {
 });
 
 ourPanel.on('show', function() {
-  var state = tabs.activeTab.ourstate;
+  var state = getState(tabs.activeTab);
   if(state === undefined) {
     ourPanel.port.emit('bind', null,options);
   } else {
@@ -228,6 +238,14 @@ ourPanel.port.on("doLookup", function() {
   augmentTab(worker);
 });
 
+ourPanel.port.on("doHighlight", function(id) {
+  console.log("doHighlight("+id+")");
+  var tab = tabs.activeTab;
+  var worker = getWorker(tab);
+  if( worker ) {
+    worker.port.emit("highlight");
+  }
+});
 
 // TODO: ditch pagemod altogether, use tab.attach() to inject content script!
 // (on tab pageshow event?)
@@ -262,11 +280,15 @@ function installPageMod() {
 // add our state-tracking stuff to a tab
 function augmentTab(worker) {
   var tab=worker.tab;
+
   var url = tab.url;
   console.log("begin tracking tab: ", url);
 
   var state = new TabState(url, function (state) {update_gui(worker,state);});
-  worker.tab.ourstate = state;
+
+//  worker.tab.ourstate = state;
+
+  tabmap[tab.id] = {'worker': worker, 'state': state};
   update_gui(worker,state);
 
   // update our state when page text has been extracted...
@@ -289,7 +311,18 @@ function installWidget() {
   });
 }
 
-tabs.on('activate', update_widget );
+tabs.on('activate', function(tab) {
+  // if it's a tab we're tracking, update!
+  if(tab.id in tabmap) {
+    update_widget(tab);
+  };
+});
+
+tabs.on('close', function(tab){
+  if(tab.id in tabmap) {
+    delete tabmap[tab.id];
+  }
+});
 
 function startup() {
   var default_options = {

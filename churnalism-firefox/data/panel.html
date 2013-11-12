@@ -31,7 +31,7 @@ Found no press releases matching this article.
 
 <!-- template for displaying an individual matching document -->
 <script id="match-tmpl" type="text/x-jquery-tmpl">
-  <tr class="match-item">
+    <tr class="match-item" id="<%= elementId() %>">
   <td class="rating">
       <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">

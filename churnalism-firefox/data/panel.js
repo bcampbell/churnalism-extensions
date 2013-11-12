@@ -49,6 +49,10 @@ function bind(state,options) {
   } else {
     $('#content').html(searchNoResultsTemplate(results));
   }
+
+  $('.match-item').click(function() {
+    self.port.emit('doHighlight',this.id);
+  });
 }
 
 

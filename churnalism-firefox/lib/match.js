@@ -1,3 +1,16 @@
+// stuff to handle results from churnalism search API
+//
+// Slightly awkward, as we need to keep data a little bit separated from code,
+// in order to be able to pass between the various parts of the extension.
+// We can pass data about in messages, but not functions.
+// (Otherwise we'd just use a model/view system and be done with it)
+//
+// So:
+// use cookSearchResults() to parse the raw results
+// then pass that data about and use addHelpers() to attach some
+// helper functions to it whenever required.
+//
+
 if(_ === undefined) {
   var _ = require("underscore");
   _.str = require("underscore.string");
@@ -8,11 +21,8 @@ _.mixin(_.str.exports());
 
 
 
-
+// Process an individual document
 function cookDoc(response) {
-    if (_.has(response,"id")){
-      response["id"]=response.id.doctype+"/"+response.id.docid+"/";
-    }
     if (_.has(response,'fragments')){
       left=_mergeFragments(response.fragments,0);
       right=_mergeFragments(response.fragments,1);
@@ -27,6 +37,9 @@ function cookDoc(response) {
 }
 
 
+// process the result set as a whole
+// The result itself is a document (representing the doc we searched for),
+// and may have an 'assocations' array of documents, which contains matches 
 function cookSearchResults(response) {
   response = cookDoc(response); // results is itself a doc
   if (_.has(response,"associations")){
@@ -84,6 +97,12 @@ function addDocHelpers(results) {
     },
     permalink: function() {
       return _.first(this.metaData.permalink);
+    },
+    pathId: function() {
+      return this.id.doctype+"/"+this.id.docid+"/";
+    },
+    elementId: function() {
+      return "doc-" + this.id.doctype+"-"+this.id.docid;
     },
   });
   return results;
