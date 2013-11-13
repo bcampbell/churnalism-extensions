@@ -24,6 +24,10 @@ function TabState(url, guiUpdateFunc) {
   this.lookupResults = null;  // only set if state is 'ready'
 
   this.pageDetails = null; // set by textReady()
+
+  // elementId ('doc-xx-yy') of document currently highlighted
+  this.currentlyHighlighted = null;
+
   // might already be a popup active
 //  this._guiUpdateFunc(this);
 }
@@ -50,7 +54,6 @@ TabState.prototype.lookupFinished = function(lookupResults) {
 
   if(this.lookupState=="none" || this.lookupState=="pending") {
 
-    console.log(JSON.stringify(lookupResults,null," "));
 
     // add the text we searched on - server doesn't return it
     lookupResults.text = this.pageDetails.text;
@@ -60,7 +63,11 @@ TabState.prototype.lookupFinished = function(lookupResults) {
       lookupResults.associations = [];
     }
 
-    this.lookupResults = addHelpers(cookSearchResults(lookupResults));    
+    lookupResults = cookSearchResults(lookupResults);
+    // slap on some helper functions
+    this.lookupResults = addHelpers(lookupResults);
+    console.log(JSON.stringify(this.lookupResults,null," "));
+
     this.lookupState = "ready";
 
     this._guiUpdateFunc(this);

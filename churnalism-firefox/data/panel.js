@@ -50,8 +50,22 @@ function bind(state,options) {
     $('#content').html(searchNoResultsTemplate(results));
   }
 
+  if(state.currentlyHighlighted == null) {
+    $('.no-highlight').hide();
+  } else {
+    $("#"+state.currentlyHighlighted).addClass("is-highlighted");
+  }
+
   $('.match-item').click(function() {
+    $(this).addClass('is-highlighted');
+    $('.no-highlight').show();
     self.port.emit('doHighlight',this.id);
+  });
+
+  $('.no-highlight').click(function() {
+    $('.match-item').removeClass('is-highlighted');
+    $(this).hide();
+    self.port.emit('noHighlight');
   });
 }
 

@@ -27,11 +27,13 @@ Found no press releases matching this article.
     <p>Uhoh... this article looks like it might be based on a press release:</p>
 <table class="results-list">
 </table>
+
+<a class="no-highlight" href="#">Remove highlighting</a>
 </script>
 
 <!-- template for displaying an individual matching document -->
 <script id="match-tmpl" type="text/x-jquery-tmpl">
-    <tr class="match-item" id="<%= elementId() %>">
+    <tr class="match-item" id="<%= elementId() %>" >
   <td class="rating">
       <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">

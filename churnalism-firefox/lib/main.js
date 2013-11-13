@@ -10,6 +10,8 @@ var windows = require("windows");
 var SimplePrefs = require("simple-prefs");
 var SimpleStorage = require("simple-storage"); 
 
+var _ = require("underscore");
+
 // our local modules
 var news_sites = require("news_sites");
 var TabState = require("tabstate").TabState;
@@ -25,10 +27,19 @@ options = {};
 tabmap = {};
 
 function getWorker(tab) {
-  return tabmap[tab.id].worker;
+  if(tab.id in tabmap) {
+    return tabmap[tab.id].worker;
+  } else {
+    return null;
+  }
 }
+
 function getState(tab) {
-  return tabmap[tab.id].state;
+  if(tab.id in tabmap) {
+    return tabmap[tab.id].state;
+  } else {
+    return null;
+  }
 }
 
 
@@ -224,6 +235,54 @@ ourPanel.on('show', function() {
   }
 });
 
+
+ourPanel.port.on("doHighlight", function(docId) {
+  console.log("doHighlight("+docId+")");
+  var tab = tabs.activeTab;
+  var worker = getWorker(tab);
+  if( !worker ) {
+    return;
+  }
+  var state = getState(tab);
+  if( !state.lookupResults ) {
+    return;
+  }
+
+  var doc = _.find(state.lookupResults.associations, function(d) { return d.elementId()==docId });
+  if( !doc) {
+    return;
+  }
+
+  // calculate fragments of text to highlight
+  var txt = state.lookupResults.text;
+  var frags = _.map(doc.leftFragments, function(f) {
+    return txt.substr(f[0],f[1]);
+  });
+
+  state.currentlyHighlighted = docId;
+//  _.each(frags, function(f) { console.log(f); });
+
+  worker.port.emit("highlight",frags);
+});
+
+ourPanel.port.on("noHighlight", function() {
+  console.log("noHighlight");
+  var tab = tabs.activeTab;
+  var worker = getWorker(tab);
+  if( !worker ) {
+    return;
+  }
+  console.log("noHighlight 2");
+  var state = getState(tab);
+  if(state.currentlyHighlighted !== null) {
+  console.log("noHighlight 3");
+    state.currentlyHighlighted = null;
+    worker.port.emit("unhighlight");
+  }
+});
+
+// TODO: ditch pagemod altogether, use tab.attach() to inject content script!
+// (on tab pageshow event?)
 ourPanel.port.on("doLookup", function() {
   console.log("doLookup Requested!");
   var tab = tabs.activeTab;
@@ -232,23 +291,14 @@ ourPanel.port.on("doLookup", function() {
     contentScriptFile: [data.url("logwrapper.js"),
         data.url("extractor.js"),
         data.url("jquery-1.7.1.min.js"),
+        data.url("highlight.js"),
         data.url("content.js")],
+    contentStyleFile: [data.url("content.css")],
   });
 
   augmentTab(worker);
 });
 
-ourPanel.port.on("doHighlight", function(id) {
-  console.log("doHighlight("+id+")");
-  var tab = tabs.activeTab;
-  var worker = getWorker(tab);
-  if( worker ) {
-    worker.port.emit("highlight");
-  }
-});
-
-// TODO: ditch pagemod altogether, use tab.attach() to inject content script!
-// (on tab pageshow event?)
 function installPageMod() {
 
   pageMod.PageMod({
@@ -258,8 +308,9 @@ function installPageMod() {
     contentScriptFile: [data.url("logwrapper.js"),
         data.url("extractor.js"),
         data.url("jquery-1.7.1.min.js"),
+        data.url("highlight.js"),
         data.url("content.js")],
-    contentStyleFile: [data.url("ffextpagecontext.css")],
+    contentStyleFile: [data.url("content.css")],
     onAttach: function(worker) {
       var url = worker.url;
       if( onWhitelist(url) ) {

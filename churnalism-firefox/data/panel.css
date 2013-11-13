@@ -46,13 +46,17 @@ footer {
 }
 
 .match-item:hover {
-    background-color: yellow;
+    background-color: #ff8;
 }
 
+.is-highlighted {
+    background-color: yellow;
+}
 
 .match-item td {
     vertical-align: top;
 }
+
 
 
 .rating {
