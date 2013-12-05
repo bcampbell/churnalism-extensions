@@ -13,10 +13,12 @@ var SimpleStorage = require("simple-storage");
 var _ = require("underscore");
 
 // our local modules
+var gatso = require("gatso");
 var news_sites = require("news_sites");
 var TabState = require("tabstate").TabState;
 var parseUri = require("parseuri").parseUri;
 
+gatso.start('startup');
 
 /* extension options - (loaded from storage in startup() and changed via storeOptions() */
 options = {};
@@ -235,7 +237,7 @@ ourPanel.on('show', function() {
   }
 });
 
-
+// panel requests highlighting
 ourPanel.port.on("doHighlight", function(docId) {
   console.log("doHighlight("+docId+")");
   var tab = tabs.activeTab;
@@ -260,7 +262,9 @@ ourPanel.port.on("doHighlight", function(docId) {
   });
 
   state.currentlyHighlighted = docId;
-//  _.each(frags, function(f) { console.log(f); });
+//  var total =0;
+//  _.each(frags, function(f) { console.log("'"+f+"': " + f.length); total += f.length; });
+//  console.log(total);
 
   worker.port.emit("highlight",frags);
 });
@@ -272,10 +276,8 @@ ourPanel.port.on("noHighlight", function() {
   if( !worker ) {
     return;
   }
-  console.log("noHighlight 2");
   var state = getState(tab);
   if(state.currentlyHighlighted !== null) {
-  console.log("noHighlight 3");
     state.currentlyHighlighted = null;
     worker.port.emit("unhighlight");
   }
@@ -292,6 +294,12 @@ ourPanel.port.on("doLookup", function() {
         data.url("extractor.js"),
         data.url("jquery-1.7.1.min.js"),
         data.url("highlight.js"),
+        /*
+        data.url("rangy-core.js"),
+        data.url("rangy-textselect.js"),
+        data.url("rangy-cssclassapplier.js"),
+        */
+        data.url("gatso.js"),
         data.url("content.js")],
     contentStyleFile: [data.url("content.css")],
   });
@@ -309,6 +317,12 @@ function installPageMod() {
         data.url("extractor.js"),
         data.url("jquery-1.7.1.min.js"),
         data.url("highlight.js"),
+        /*
+        data.url("rangy-core.js"),
+        data.url("rangy-textselect.js"),
+        data.url("rangy-cssclassapplier.js"),
+        */
+        data.url("gatso.js"),
         data.url("content.js")],
     contentStyleFile: [data.url("content.css")],
     onAttach: function(worker) {
@@ -405,7 +419,8 @@ ourWidget = installWidget();
 startup();
 tabs.open(data.url("intro.html"));
 console.log("startup done");
-
+gatso.stop('startup');
+gatso.report();
 
 
 

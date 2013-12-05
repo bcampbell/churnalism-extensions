@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <title>churnalism extension</title>
+
+    <link rel="stylesheet" href="panel.css" type="text/css">
+<!--
+    <style>
+      body {
+        min-width:357px;
+        overflow-x:hidden;
+      }
+    </style>
+    <script src="/js/lib/ashe.js"></script>
+    <script src="/js/lib/parseuri.js"></script>
+    <script src="/js/popup.js"></script>
+-->
+</head>
+  <body>
+
+      <div id="content">
+
+<h1>Churnalism extension</h1>
+
+<p>
+Works like this:
+<ol>
+<li>User enters a url/clicks on a link/whatever</li>
+<li>extension waits for core part of page to load (can take a good few seconds, depending on the scripts in use - most newspapers are pretty bad here, with heaps of analytics crap)</li>
+<li>the article text is extracted and sent of to churnalism.com</li>
+<li>churnalism.com sends back some results.</li>
+<li>results are displayed in popup window - click on the widget in the bottom-right of the screen to activate it.</li>
+</ol>
+</p>
+
+<p>
+some article links to try out:
+<ul>
+<li>
+ <a target="_blank" href="http://www.dailymail.co.uk/news/article-2475927/Weekend-starts-2-39pm-today-workers-start-switching-Friday-afternoons.html">http://www.dailymail.co.uk/news/article-2475927/Weekend-starts-2-39pm-today-workers-start-switching-Friday-afternoons.html</a>
+ </li>
+<li>
+ <a target="_blank" href="http://www.telappliant.com/voip-news/801653107/could-voip-help-you-keep-workers-focused-on-fridays/">http://www.telappliant.com/voip-news/801653107/could-voip-help-you-keep-workers-focused-on-fridays/</a>
+</li>
+<li>
+ <a target="_blank" href="http://www.dailymail.co.uk/health/article-2462893/Average-Briton-hit-health-wake-39.html">http://www.dailymail.co.uk/health/article-2462893/Average-Briton-hit-health-wake-39.html</a>
+</li>
+<li>
+ <a target="_blank" href="http://bleacherreport.com/articles/1807375-wayne-rooney-less-popular-than-horse-in-poll-of-great-british-sporting-champions">http://bleacherreport.com/articles/1807375-wayne-rooney-less-popular-than-horse-in-poll-of-great-british-sporting-champions</a>
+</li>
+<li>
+ <a target="_blank" href="http://www.dailymail.co.uk/news/article-2451525/One-cooked-meal-scratch-use-packets-jars-ingredients-times-week.html">http://www.dailymail.co.uk/news/article-2451525/One-cooked-meal-scratch-use-packets-jars-ingredients-times-week.html</a>
+</li>
+<li>
+ <a target="_blank" href="http://en.paperblog.com/one-in-six-have-never-cooked-a-meal-from-scratch-660214/">http://en.paperblog.com/one-in-six-have-never-cooked-a-meal-from-scratch-660214/</a>
+</li>
+<li>
+ <a target="_blank" href="http://www.bestdaily.co.uk/your-life/news/a522677/the-truth-about-britains-cooking-habits.html">http://www.bestdaily.co.uk/your-life/news/a522677/the-truth-about-britains-cooking-habits.html</a>
+</li>
+<li>
+ <a target="_blank" href="http://www.femalefirst.co.uk/foodanddrink/sixth-of-people-never-cooked-a-meal-from-scratch-345935.html">http://www.femalefirst.co.uk/foodanddrink/sixth-of-people-never-cooked-a-meal-from-scratch-345935.html</a>
+</li>
+<li>
+ <a target="_blank" href="http://www.westerndailypress.co.uk/cooked-scratch/story-19916390-detail/story.html">http://www.westerndailypress.co.uk/cooked-scratch/story-19916390-detail/story.html</a>
+</li>
+</ul>
+</p>
+
+</div>
+
+
+  </body>
+</html>
+
+

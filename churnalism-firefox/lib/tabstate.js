@@ -66,7 +66,7 @@ TabState.prototype.lookupFinished = function(lookupResults) {
     lookupResults = cookSearchResults(lookupResults);
     // slap on some helper functions
     this.lookupResults = addHelpers(lookupResults);
-    console.log(JSON.stringify(this.lookupResults,null," "));
+//    console.log(JSON.stringify(this.lookupResults,null," "));
 
     this.lookupState = "ready";
 
