@@ -41,37 +41,73 @@ footer {
 }
 
 .match-item {
+    position: relative;
     padding: 0.2em 0;
     margin: 0.2em 0;
 }
 
 .match-item:hover {
     background-color: #ff8;
+    cursor: pointer;
 }
 
-.is-highlighted {
+
+
+.is-highlighted, .is-highlighted:hover{
     background-color: yellow;
+    cursor: default;
 }
 
-.match-item td {
-    vertical-align: top;
+
+
+.no-highlight {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: none;
+    font-size: 200%;
+    border: 1px solid #ccc;
+    text-decoration: none;
 }
 
+.no-highlight:hover {
+    border: 1px solid black;
+    text-decoration: none;
+}
+
+.match-item.is-highlighted .no-highlight {
+    display: block;
+}
 
 
 .rating {
+    vertical-align: top;
+    display: inline-block;
     width: 74px;
 }
 
+.pr-title {
+    vertical-align: top;
+    display: inline-block;
+    width: 260px;
+}
+
+.reuse-metric {
+    vertical-align: top;
+    display: inline-block;
+    width: 100px;
+}
+
+
 .metric {
-    display: block;
+/*    display: block; */
     font-size: 120%;
     color: #000;
     padding: 0;
     margin: 0;
 }
 .metric-label {
-    display: block;
-    margin: 0 0 0 1em;
+/*    display: block; */
+    margin: 0 0 0 0.2em;
     padding: 0;
 }

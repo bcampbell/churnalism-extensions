@@ -47,6 +47,13 @@ function cookSearchResults(response) {
       a = cookDoc(a);
     });
   }
+
+  // sort associations by score
+  response.associations.sort(function(a, b) {
+    var aScore = Number((a.leftCharacters/response.text.length+a.rightCharacters/a.characters)*1.5);
+    var bScore = Number((b.leftCharacters/response.text.length+b.rightCharacters/b.characters)*1.5);
+    return bScore - aScore;
+  });
   return response;
 }
 
@@ -82,6 +89,9 @@ function addDocHelpers(results) {
     },
     score: function() {
       return Number((this.leftCharacters/this.parent.text.length+this.rightCharacters/this.characters)*1.5).toFixed(0);
+    },
+    type: function() {
+      return _.first(this.metaData.type);
     },
     cut: function(){
       return Number(this.leftCharacters/this.parent.text.length*100).toFixed(0);

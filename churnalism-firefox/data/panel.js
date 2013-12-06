@@ -35,14 +35,13 @@ function bind(state,options) {
   // bind on all the helper functions that didn't get passed through with the data
   var results = addHelpers(state.lookupResults);
 
-  results.pressReleases = _.filter(results.associations,function(doc) {return doc.metaData.type=="press release";});
 
-  if(results.pressReleases.length > 0 ) {
+  if(results.associations.length > 0 ) {
     $('#content').html(searchResultsTemplate(results));
 
     // now format and insert each matching document
     var prList = $('.results-list');
-    _.each( results.pressReleases, function(doc) {
+    _.each( results.associations, function(doc) {
       doc.parent = results;
       prList.append(matchTemplate(doc));
     });
@@ -51,21 +50,20 @@ function bind(state,options) {
   }
 
   if(state.currentlyHighlighted == null) {
-    $('.no-highlight').hide();
   } else {
     $("#"+state.currentlyHighlighted).addClass("is-highlighted");
   }
 
   $('.match-item').click(function() {
+    $('.match-item').removeClass('is-highlighted');
     $(this).addClass('is-highlighted');
-    $('.no-highlight').show();
     self.port.emit('doHighlight',this.id);
   });
 
   $('.no-highlight').click(function() {
     $('.match-item').removeClass('is-highlighted');
-    $(this).hide();
     self.port.emit('noHighlight');
+    return false;
   });
 }
 

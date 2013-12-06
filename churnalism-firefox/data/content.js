@@ -40,6 +40,9 @@ var extract_article = function () {
 self.port.on('highlight', function(frags) {
   console.log("highlighting " + frags.length + " frags")
 
+  // zap any previous highlight
+  removeHighlight();
+
   // highlight all the fragment strings
   gatsoStart("highlight-prep");
   reQuote = function(str) {
@@ -65,6 +68,10 @@ self.port.on('highlight', function(frags) {
 });
 
 self.port.on('unhighlight', function() {
+  removeHighlight();
+});
+
+function removeHighlight() {
   $('span.highlight').each(function() {
 			this.parentNode.firstChild.nodeName;
 			with(this.parentNode) {
@@ -72,10 +79,8 @@ self.port.on('unhighlight', function() {
 				normalize();
 			}
   });
+}
 
-//  $('body').removeHighlight();
-
-});
 
 
 

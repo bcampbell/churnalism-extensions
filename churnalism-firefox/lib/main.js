@@ -208,8 +208,29 @@ function update_widget(tab)
   // if the tab is active, update the popup window
   if(tabs.activeTab===tab) {
     ourPanel.port.emit('bind', state, options);
+
+    // and show a notificationbox if one's been requested
+    if( state!==null && state.churnAlertPending ) {
+      notifyChurn(state);
+      state.churnAlertPending = false;
+    }
   }
 }
+
+
+function notifyChurn(state) {
+  var notification = require("notification-box").NotificationBox({
+    'value': 'churn-alert',
+    'label': 'Churn alert...',
+    'priority': 'WARNING_HIGH',
+    'image': "",  //self.data.url("gnu-icon.png"),
+    'buttons': [{'label': "Details",
+      'onClick': function () {
+        ourPanel.show({position:{ top:0,right:0}});
+      }}]
+  });
+}
+
 
 
 
@@ -224,7 +245,7 @@ ourPanel = Panel( {
     data.url("match.js"),
     data.url("panel.js")],
 //  contentStyleFile: [data.url("bootstrap.min.css")],
-  width: 400,
+  width: 500,
   height: 300,
 });
 
@@ -267,6 +288,15 @@ ourPanel.port.on("doHighlight", function(docId) {
 //  console.log(total);
 
   worker.port.emit("highlight",frags);
+
+  /*
+  var notification = require("notification-box").NotificationBox({
+    'value': 'highlight-info',
+    'label': 'Highlighting text from ' + doc.source(),
+    'priority': 'INFO_LOW',
+    'image': "",  //self.data.url("gnu-icon.png"),
+  });
+  */
 });
 
 ourPanel.port.on("noHighlight", function() {

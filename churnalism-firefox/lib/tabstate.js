@@ -28,6 +28,8 @@ function TabState(url, guiUpdateFunc) {
   // elementId ('doc-xx-yy') of document currently highlighted
   this.currentlyHighlighted = null;
 
+  // do we want to notify the user?
+  this.churnAlertPending = false;
   // might already be a popup active
 //  this._guiUpdateFunc(this);
 }
@@ -64,12 +66,23 @@ TabState.prototype.lookupFinished = function(lookupResults) {
     }
 
     lookupResults = cookSearchResults(lookupResults);
+    // filter out the current page from the results
+    lookupResults.associations = lookupResults.associations.filter( function(doc) {return doc.metaData.permalink != this.url;}, this);
+
+
     // slap on some helper functions
-    this.lookupResults = addHelpers(lookupResults);
+    lookupResults = addHelpers(lookupResults);
 //    console.log(JSON.stringify(this.lookupResults,null," "));
 
-    this.lookupState = "ready";
 
+    // TODO: filter out very low-rating matches (<10%, say)
+
+    // if there's churn, set flag to pop up a notfiifcation (used and cleared by the gui update fn)
+    if(lookupResults.associations.length > 0 ) {
+      this.churnAlertPending = true;
+    }
+    this.lookupResults = lookupResults;
+    this.lookupState = "ready";
     this._guiUpdateFunc(this);
   }
 };

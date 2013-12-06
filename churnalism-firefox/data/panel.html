@@ -24,31 +24,31 @@ Found no press releases matching this article.
 
 <!-- main template for showing search results -->
 <script id="search-results-tmpl" type="text/x-jquery-tmpl">
-    <p>Uhoh... this article looks like it might be based on a press release:</p>
-<table class="results-list">
-</table>
+    <p>Uhoh... this article looks like it might contain churn:</p>
+<div class="results-list">
+</div>
 
-<a class="no-highlight" href="#">Remove highlighting</a>
 </script>
 
 <!-- template for displaying an individual matching document -->
 <script id="match-tmpl" type="text/x-jquery-tmpl">
-    <tr class="match-item" id="<%= elementId() %>" >
-  <td class="rating">
+<div class="match-item" id="<%= elementId() %>" >
+  <span class="rating">
       <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
-  </td>
-  <td class="pr-title"> 
+  </span>
+  <span class="pr-title"> 
       <a class="title" target="_blank" href="<%=permalink()%>"><%=shortTitle()%></a><br/>
-      <span class="source"><%=source()%>, </span>
+      <%=type()%> from <span class="source"><%=source()%></span></br>
       <span class="published"><%=published()%></span>
-  </td>
-  <td class="reuse-metric">
-      <span class="metric"><%=paste()%>%</span> <span class="metric-label">recycled</span>
+  </span>
+  <span class="reuse-metric">
+      <span class="metric"><%=cut()%>%</span> <span class="metric-label">recycled</span></br>
       <span class="metric"><%=overlap()%></span> <span class="metric-label">chars</span>
-  </td>
-  </tr>
+  </span>
+  <a class="no-highlight" href="#">X</a>
+</div>
 </script>
 
 <header>
