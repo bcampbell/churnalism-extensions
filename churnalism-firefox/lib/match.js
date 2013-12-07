@@ -73,64 +73,70 @@ function _mergeFragments(fragments,pos) {
 
 
 // bind on some helper functions to the bare data
-function addDocHelpers(results) {
-  _.extend(results, {
+function addDocHelpers(doc,searchDoc) {
+  _.extend(doc, {
     journalisted: function(){
-      return "http://journalisted.com/article/"+Number(_.first(this.metaData.id)).toString(36)
+      return "http://journalisted.com/article/"+Number(_.first(doc.metaData.id)).toString(36)
     },
     journalists: function(){
-      return _.join(",",this.metaData.journalists)
+      return _.join(",",doc.metaData.journalists)
     },
     source: function(){
-      return _.first(this.metaData.source)
+      return _.first(doc.metaData.source)
     },
     published: function(){
-      return moment(_.first(this.metaData.published)).format('Do MMMM YYYY')
+      return moment(_.first(doc.metaData.published)).format('Do MMMM YYYY')
     },
     score: function() {
-      return Number((this.leftCharacters/this.parent.text.length+this.rightCharacters/this.characters)*1.5).toFixed(0);
+      return Number((doc.leftCharacters/searchDoc.text.length+doc.rightCharacters/doc.characters)*1.5).toFixed(0);
     },
     type: function() {
-      return _.first(this.metaData.type);
+      return _.first(doc.metaData.type);
     },
     cut: function(){
-      return Number(this.leftCharacters/this.parent.text.length*100).toFixed(0);
+      return Number(doc.leftCharacters/searchDoc.text.length*100).toFixed(0);
     },
     paste: function() {
-      return Number(this.rightCharacters/this.characters*100).toFixed(0);
+      return Number(doc.rightCharacters/doc.characters*100).toFixed(0);
     },
     overlap: function() {
-      return this.leftCharacters;
+      return doc.leftCharacters;
     },
     shortTitle: function() {
-      return _.prune(this.title,80);
+      return _.prune(doc.title,80);
     },
     permalink: function() {
-      return _.first(this.metaData.permalink);
+      return _.first(doc.metaData.permalink);
     },
     pathId: function() {
-      return this.id.doctype+"/"+this.id.docid+"/";
+      return doc.id.doctype+"/"+doc.id.docid+"/";
     },
     elementId: function() {
-      return "doc-" + this.id.doctype+"-"+this.id.docid;
+      return "doc-" + doc.id.doctype+"-"+doc.id.docid;
     },
   });
-  return results;
+  return doc;
 }
 
 function addHelpers(results) {
-  results = addDocHelpers(results);
-  if (_.has(results,"associations")) {
-    _.each(results["associations"],function(a) {
-      a = addDocHelpers(a);
-    });
-  }
+  results = addDocHelpers(results,null);
+  results.associations.forEach( function(a) {
+    a = addDocHelpers(a,results);
+  });
 
+  // some functions that apply only to the overall result object (not
+  // individual matching docs)
   _.extend(results, {
     title: function(){
-      count=this["associations"].length;
-      return count+" "+_.humanize(this["name"])+((count>1)?"s":"");
-    }
+      count=results["associations"].length;
+      return count+" "+_.humanize(results["name"])+((count>1)?"s":"");
+    },
+    // highest matching score
+    highScore: function() {
+      var high = 0;
+      results.associations.forEach( function(doc) { high = Math.max(high,doc.score()) });
+      return high;
+    },
   });
   return results;
 }

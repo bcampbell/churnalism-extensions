@@ -74,8 +74,10 @@ TabState.prototype.lookupFinished = function(lookupResults) {
     lookupResults = addHelpers(lookupResults);
 //    console.log(JSON.stringify(this.lookupResults,null," "));
 
-
-    // TODO: filter out very low-rating matches (<10%, say)
+    // filter out very low-rating matches (TODO: should the server do this?)
+    lookupResults.associations = lookupResults.associations.filter( function(doc) {
+      return doc.score()>0;
+    });
 
     // if there's churn, set flag to pop up a notfiifcation (used and cleared by the gui update fn)
     if(lookupResults.associations.length > 0 ) {
