@@ -12,10 +12,8 @@ var pleaseWaitTemplate = _.template($('#please-wait-tmpl').html());
 
 function bind(state,options) {
 
-//  console.log("popup.js: bind()", JSON.stringify(state,null," "));
   if( state === undefined ||state === null ) {
     $('#content').html(notTrackingTemplate());
-    // TODO: bind in link to kick off search
     $('.do-lookup').click(function() {
       self.port.emit('doLookup');
     });
@@ -55,16 +53,16 @@ function bind(state,options) {
   }
 
   $('.match-item').click(function() {
-    $('.match-item').removeClass('is-highlighted');
-    $(this).addClass('is-highlighted');
-    self.port.emit('doHighlight',this.id);
+    if($(this).is('.is-highlighted')) {
+      $('.match-item').removeClass('is-highlighted');
+      self.port.emit('noHighlight');
+    } else {
+      $('.match-item').removeClass('is-highlighted');
+      $(this).addClass('is-highlighted');
+      self.port.emit('doHighlight',this.id);
+    }
   });
 
-  $('.no-highlight').click(function() {
-    $('.match-item').removeClass('is-highlighted');
-    self.port.emit('noHighlight');
-    return false;
-  });
 }
 
 

@@ -4,6 +4,10 @@
     <title>churnalism extension</title>
 
     <link rel="stylesheet" href="panel.css" type="text/css">
+    <!-- TESTING 
+    <link rel="stylesheet" href="test_panel.css" type="text/css">
+    END TESTING -->
+
   </head>
   <body>
 
@@ -24,30 +28,45 @@ Found no press releases matching this article.
 
 <!-- main template for showing search results -->
 <script id="search-results-tmpl" type="text/x-jquery-tmpl">
-    <p>Uhoh... this article looks like it might contain churn:</p>
+    <div class="churn-alert">
+    <span>Uhoh... this article might be churnalism</span> - 
+    <strong>
+        <% if(associations.length==1) { %>
+    1 match found:
+    <% } else { %>
+    <%= associations.length %> matches found:
+    <% } %>
+</strong>
+<br/>
+</div>
 <div class="results-list">
 </div>
-
 </script>
 
 <!-- template for displaying an individual matching document -->
 <script id="match-tmpl" type="text/x-jquery-tmpl">
 <div class="match-item" id="<%= elementId() %>" >
-  <span class="rating">
+  <div class="doc-details">
+      <div class="highlight-icon" title="Click to highlight matching text"></div>
+    <div class="highlight-group" title="Click to highlight matching text">
+      <h3 class="doc-title"><%=shortTitle()%></h3>
+      <span class="doc-pubdate"><%=published()%></span>
+    </div>
+      <div class="doc-meta">
+        <a target="_blank" href="<%=permalink()%>">
+            <strong><%=type()%></strong> from <span class="source"><%=source()%></span></a><br/>
+      </div>
+  </div>
+
+  <div class="churn-metrics">
+    <span class="rating">
       <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
       <img src="recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
+    </span>
+    <span class="metric"><%=cut()%>%</span> <span class="metric-label">recycled</span></br>
+    <span class="metric"><%=overlap()%></span> <span class="metric-label">chars</span>
   </span>
-  <span class="pr-title"> 
-      <a class="title" target="_blank" href="<%=permalink()%>"><%=shortTitle()%></a><br/>
-      <%=type()%> from <span class="source"><%=source()%></span></br>
-      <span class="published"><%=published()%></span>
-  </span>
-  <span class="reuse-metric">
-      <span class="metric"><%=cut()%>%</span> <span class="metric-label">recycled</span></br>
-      <span class="metric"><%=overlap()%></span> <span class="metric-label">chars</span>
-  </span>
-  <a class="no-highlight" href="#">X</a>
 </div>
 </script>
 
@@ -58,6 +77,19 @@ Found no press releases matching this article.
 </div>
 <footer>
 </footer>
+<!-- TESTING 
+<script>
+self = { port: {emit: console.log, on: console.log}};
+</script>
+<script src="jquery-1.7.1.min.js"></script>
+<script src="underscore.js"></script>
+<script src="underscore.string.js"></script>
+<script src="moment.min.js"></script>
+
+<script src="match.js"></script>
+<script src="panel.js"></script>
+<script src="test_panel.js"></script>
+ END TESTING -->
 </body>
 </html>
 

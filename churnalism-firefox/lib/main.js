@@ -209,6 +209,12 @@ function update_widget(tab)
   if(tabs.activeTab===tab) {
     ourPanel.port.emit('bind', state, options);
 
+    console.log("+++++++++++++++++++++++++++++");
+    var foo = JSON.stringify(state);
+    foo = foo.replace("\\","\\\\",'g')
+    foo = foo.replace("'","\\'",'g')
+    console.log("state = '" + foo + "';");
+    console.log("+++++++++++++++++++++++++++++");
     // and show a notificationbox if one's been requested
     if( state!==null && state.churnAlertPending ) {
       notifyChurn(state);

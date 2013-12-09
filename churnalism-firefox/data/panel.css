@@ -32,6 +32,11 @@ footer {
     font-size: 80%;
 }
 
+.churn-alert {
+    font-size: 120%;
+    border-bottom: 1px solid #ccc;
+    padding: 8px;
+}
 
 
 .results-list {
@@ -42,59 +47,101 @@ footer {
 
 .match-item {
     position: relative;
-    padding: 0.2em 0;
-    margin: 0.2em 0;
+    padding: 0 0 1em 0;
+    margin: 0.2em 0 1em 0;
+    border-bottom: 1px solid #ccc;
+    min-height: 62px;
 }
 
-.match-item:hover {
-    background-color: #ff8;
+.match-item:last-child {
+    border-bottom: none;
+}
+
+.highlight-group:hover,
+.highlight-icon:hover {
     cursor: pointer;
 }
 
+.highlight-group {
+    position: relative;
+}
 
 
-.is-highlighted, .is-highlighted:hover{
-    background-color: yellow;
+.highlight-icon {
+    position: absolute;
+    top: 0;
+    left: 0px;
+    width: 64px;
+    height: 40px;
+    background: url("highlighter.png") 0px 0px no-repeat;
+    display: inline-block;
+}
+
+
+.match-item:hover .highlight-icon {
+    background-position: -64px 0px;
+}
+
+.is-highlighted .highlight-icon,
+.is-highlighted:hover .highlight-icon {
+    background-position: -128px 0px;
+}
+
+.is-highlighted {
     cursor: default;
 }
 
 
-
-.no-highlight {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    display: none;
-    font-size: 200%;
-    border: 1px solid #ccc;
-    text-decoration: none;
-}
-
-.no-highlight:hover {
-    border: 1px solid black;
-    text-decoration: none;
-}
-
-.match-item.is-highlighted .no-highlight {
+.highlight-group {
     display: block;
+    padding: 0;
 }
 
+.doc-details {
+    margin: 0 108px 0 0;
+}
+
+
+.highlight-group {
+    min-height: 40px;
+    padding: 4px 8px;
+    margin: 0 0 0 64px;
+}
+
+.is-highlighted .highlight-group {
+    background-color: yellow;
+    border-radius: 8px;
+}
 
 .rating {
     vertical-align: top;
-    display: inline-block;
+    display: block;
     width: 74px;
 }
 
-.pr-title {
+.doc-title {
+    padding: 0;
+    margin: 0;
     vertical-align: top;
-    display: inline-block;
-    width: 260px;
 }
 
-.reuse-metric {
+.doc-pubdate {
+    font-style: italic;
+}
+
+.doc-meta {
+    margin: 0 0 0 64px;
+    padding: 0 8px;
+}
+
+
+
+
+.churn-metrics {
+    position: absolute;
+    right: 0;
+    top: 0;
     vertical-align: top;
-    display: inline-block;
     width: 100px;
 }
 
