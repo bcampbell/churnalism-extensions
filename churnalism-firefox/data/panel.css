@@ -41,7 +41,15 @@ footer {
 .churn-alert {
     font-size: 120%;
     border-bottom: 1px solid #ccc;
-    padding: 8px;
+    padding: 8px 8px 16px 8px;
+}
+
+.hint {
+    display: block;
+    font-size: small;
+    color: #888;
+    font-style: italic;
+    padding-bottom: 8px;
 }
 
 
