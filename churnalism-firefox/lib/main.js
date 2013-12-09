@@ -461,7 +461,7 @@ function startup() {
 console.log("starting up");
 ourWidget = installWidget();
 startup();
-tabs.open(data.url("intro.html"));
+//tabs.open(data.url("intro.html"));
 console.log("startup done");
 gatso.stop('startup');
 gatso.report();
