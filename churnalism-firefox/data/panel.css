@@ -8,18 +8,24 @@ body {
 
 
 header {
+    position: relative;
     border-bottom: 1px solid #888;
-    padding: 0.5em;
+    padding: 0.2em;
     margin: 0;
 }
 
 header h1 {
-    font-size: 120%;
     padding: 0;
     margin: 0;
-    color: #000;
 }
 
+header .mstlink {
+    position: absolute;
+    top: 0.2em;
+    right: 0.2em;
+    padding: 0;
+    margin: 0;
+}
 
 footer {
     margin: 0;
