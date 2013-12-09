@@ -225,12 +225,20 @@ function update_widget(tab)
 
 
 function notifyChurn(state) {
+  var n = state.lookupResults.associations.length;
+  var msg = "Uhoh... this article might be churnalism - ";
+  if( n==1) {
+    msg = msg + "1 match found";
+  } else {
+    msg = msg + n + " matches found";
+  }
+
   var notification = require("notification-box").NotificationBox({
     'value': 'churn-alert',
-    'label': 'Churn alert...',
+    'label': msg,
     'priority': 'WARNING_HIGH',
     'image': "",  //self.data.url("gnu-icon.png"),
-    'buttons': [{'label': "Details",
+    'buttons': [{'label': "More details...",
       'onClick': function () {
         ourPanel.show({position:{ top:0,right:0}});
       }}]
