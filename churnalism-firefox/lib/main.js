@@ -202,20 +202,25 @@ function update_widget(tab)
       }
     }
   }
+  msg = "";
   widget.port.emit('reconfig', {'msg': msg, 'icon': icon});
-  widget.tooltip = "Churn info";
+  widget.tooltip = "Churnalism information";
 
   // if the tab is active, update the popup window
   if(tabs.activeTab===tab) {
     ourPanel.port.emit('bind', state, options);
 
+    // TESTING: dump out state as JSON to use in test_panel.html
+    /*
     console.log("+++++++++++++++++++++++++++++");
     var foo = JSON.stringify(state);
     foo = foo.replace("\\","\\\\",'g')
     foo = foo.replace("'","\\'",'g')
     console.log("state = '" + foo + "';");
     console.log("+++++++++++++++++++++++++++++");
-    // and show a notificationbox if one's been requested
+    */
+
+    // show a notificationbox if one's been requested
     if( state!==null && state.churnAlertPending ) {
       notifyChurn(state);
       state.churnAlertPending = false;
@@ -413,10 +418,11 @@ function installWidget() {
   return widget.Widget({
     id: "our-widget",
     label: " ",
-    width: 200,
+    width: 20,
     contentURL: data.url("widget.html"),
     contentScriptFile: data.url("widget.js"),
-    panel: ourPanel
+    panel: ourPanel,
+    tooltip: "Churnalism information",
   });
 }
 
