@@ -219,7 +219,7 @@ function update_gui()
 
 function notifyChurn(state) {
   var n = state.lookupResults.associations.length;
-  var msg = "Uhoh... this article might be churnalism - ";
+  var msg = "Uh-oh... this article might be churnalism - ";
   if( n==1) {
     msg = msg + "1 match found";
   } else {

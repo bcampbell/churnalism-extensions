@@ -9,8 +9,8 @@ function reconfig(params) {
   var icon_img = document.getElementById("icon-img");
   icon_img.src = icons[params.icon];
 
-  var msg = document.getElementById("widget-msg");
-  msg.innerHTML = params['msg'];
+//  var msg = document.getElementById("widget-msg");
+//  msg.innerHTML = params['msg'];
 }
 
 
