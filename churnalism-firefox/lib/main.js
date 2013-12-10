@@ -164,23 +164,11 @@ function buildMatchFn(sites) {
 
 
 
-/* update the gui to reflect the current state
+/* update the gui (widget, popup) to reflect the current state
  * the state tracker object calls this every time something changes
  * (eg lookup request returns)
- * state can be null/undefined if current tab not being tracked
  */
-function update_gui(worker,state)
-{
-
-  update_widget(worker.tab);
-
-}
-
-
-
-// update widget and popup window
-// TODO: don't need tab param! should always reflect the current tab 
-function update_widget(tab)
+function update_gui()
 {
   tab = tabs.activeTab;
   var state = getState(tab);
@@ -398,12 +386,12 @@ function augmentTab(worker) {
   var url = tab.url;
   console.log("begin tracking tab: ", url);
 
-  var state = new TabState(url, function (state) {update_gui(worker,state);});
+  var state = new TabState(url, function (state) {update_gui();});
 
 //  worker.tab.ourstate = state;
 
   tabmap[tab.id] = {'worker': worker, 'state': state};
-  update_gui(worker,state);
+  update_gui();
 
   // update our state when page text has been extracted...
   worker.port.on('textExtracted', function(pageDetails) {
@@ -427,10 +415,7 @@ function installWidget() {
 }
 
 tabs.on('activate', function(tab) {
-  // if it's a tab we're tracking, update!
-  if(tab.id in tabmap) {
-    update_widget(tab);
-  };
+  update_gui();
 });
 
 tabs.on('close', function(tab){
