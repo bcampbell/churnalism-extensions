@@ -40,22 +40,38 @@ var extract_article = function () {
 self.port.on('highlight', function(frags) {
   console.log("highlighting " + frags.length + " frags")
 
+
   // zap any previous highlight
   removeHighlight();
 
   // highlight all the fragment strings
   gatsoStart("highlight-prep");
-  reQuote = function(str) {
-    return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-  };
 
+  // munge all the fragements into a big regex
   for(var i=0; i<frags.length; ++i) {
-    frags[i] = "(?:" + reQuote(frags[i]) + ")";
+    var f = frags[i];
+
+    // TODO: handle html entities. Some punctuation, some whitespace
+    // (eg nbsp), some text (eg accented chars)
+
+    // make punctuation optional
+    f = f.replace(/[^\\\w\s]+/g, "\\W*");
+
+    // be tolerant of whitespace changes
+    f = f.replace(/\s+/g, "\\s+");
+
+/*
+    console.log( '"' + frags[i] +'"' );
+    console.log( ' -> "' + f + '"' );
+*/
+    f = "(?:" + f + ")";
+    frags[i] = f;
   }
 
   var pat = new RegExp(frags.join("|"),"gi");
 
   gatsoStop("highlight-prep");
+
 
   gatsoStart("highlight-find");
   var ranges = findText(pat);
