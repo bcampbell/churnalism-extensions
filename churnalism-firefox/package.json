@@ -1,9 +1,11 @@
 {
-  "name": "churnalism-firefox",
-  "fullName": "churnalism-firefox",
+  "name": "churnalism-uk",
+  "fullName": "Churnalism UK",
   "id": "jid1-DrLtSQh2HIzlPA",
-  "description": "churnalism uk addon prototype",
-  "author": "",
-  "license": "MPL 2.0",
-  "version": "0.8"
+  "icon": "icon.png",
+  "description": "Highlights press release material in news articles (for the UK).",
+  "author": "Media Standards Trust",
+  "contributors": ["Ben Campbell"],
+  "license": "GNU Affero General Public License (http://www.gnu.org/licenses/agpl-3.0.html)",
+  "version": "0.9"
 }
