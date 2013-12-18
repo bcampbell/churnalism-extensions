@@ -132,16 +132,59 @@ function buildMatchFn(sites) {
  */
 
 
+function cheesyHighlightHack( state,tabId) {
+  // CHEESY HACK - apply highlighting for first doc
+  
+  // calculate fragments of text to highlight
+  var txt = state.lookupResults.text;
+  var doc = state.lookupResults.associations[0];
+  var docId = doc.elementId();
+  var frags = _.map(doc.leftFragments, function(f) {
+    return txt.substr(f[0],f[1]);
+  });
 
+  chrome.tabs.sendMessage(tabId,{'method':'highlight','frags':frags});
+
+
+  state.currentlyHighlighted = docId;
+
+}
 
 
 /* update the gui (widget, popup) to reflect the current state
  * the state tracker object calls this every time something changes
  * (eg lookup request returns)
  */
-function update_gui(state)
+function update_gui(tabId)
 {
-  console.log("update_gui()", state);
+  console.log(tabId + ": update_gui()");
+  chrome.tabs.get(tabId, function(tab) {
+    var state = getState(tab.id);
+
+    // update the Browser Action button
+    var badgeText = "";
+    if(state) {
+      if(state.isLookupReady()) {
+        badgeText = "" + state.lookupResults.associations.length;
+      }
+    } else {
+    }
+    chrome.browserAction.setBadgeText( {text: badgeText, tabId: tab.id});
+
+    if(tab.active) {
+      // update any displayed popup
+      chrome.runtime.sendMessage({'method': 'bindPopup', 'state': state, 'options': options});
+    }
+
+    // check for notification reqs
+    if( state!==null && state.churnAlertPending ) {
+      notifyChurn(state);
+      cheesyHighlightHack(state,tabId);
+      state.churnAlertPending = false;
+    }
+  });
+
+
   // TODO: update icon/badge/tooltip
 
   // if the tab is active, update the popup window
@@ -177,6 +220,10 @@ function notifyChurn(state) {
     msg = msg + n + " matches found";
   }
 
+//  var total =0;
+//  _.each(frags, function(f) { console.log("'"+f+"': " + f.length); total += f.length; });
+//  console.log(total);
+
   // TODO
 }
 
@@ -203,9 +250,10 @@ var executeScriptsSynchronously = function (tab_id, files, callback) {
     }
 };
 
-var contentScripts = [ "logwrapper.js",
+var contentScripts = [ "lib/jquery-1.7.1.min.js",
+    "compat.js",
+    "logwrapper.js",
     "extractor.js",
-    "jquery-1.7.1.min.js",
     "highlight.js",
     "gatso.js",
     "content.js" ];
@@ -229,10 +277,11 @@ function initListeners() {
     if( onWhitelist(url) ) {
       if( !onBlacklist(url) ) {
         console.log("tab " + tabId + ": tracking", url);
-        var state = new TabState(url, function(state) { update_gui();} );
+        var state = new TabState(url, function(state) { update_gui(tabId);} );
         tabmap[tabId] = { 'state': state};
         executeScriptsSynchronously(tabId, contentScripts);
-        update_gui();
+        chrome.tabs.insertCSS(tabId,{file:'content.css'});
+        update_gui(tabId);
       } else {
         console.log("backlisted: ", url);
       }
@@ -243,7 +292,7 @@ function initListeners() {
   });
 
   chrome.tabs.onActivated.addListener(function(activeInfo) {
-    update_gui();
+    update_gui(activeInfo.tabId);
   });
 
   chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
@@ -253,9 +302,9 @@ function initListeners() {
   });
 
 
-  chrome.extension.onMessage.addListener( function(req, sender, sendResponse) {
-    console.log( "background.js: received "+ req.method + " from tab "+sender.tab.id);
-    console.log(req);
+  chrome.runtime.onMessage.addListener( function(req, sender, sendResponse) {
+//    console.log( "background.js: received "+ req.method + " from tab "+sender.tab.id);
+//    console.log(req);
 
     var state = getState(sender.tab.id);
     if( !state )

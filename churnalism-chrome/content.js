@@ -28,8 +28,6 @@ var extract_article = function () {
 
     pageDetails = {'title': title, 'text': article};
 
-    // TODO:
-//    self.port.emit("textExtracted", pageDetails);
   return pageDetails;
 };
 
@@ -41,7 +39,7 @@ function doHighlight(frags) {
   removeHighlight();
 
   // highlight all the fragment strings
-  gatsoStart("highlight-prep");
+  Gatso.start("highlight-prep");
 
   // munge all the fragements into a big regex
   for(var i=0; i<frags.length; ++i) {
@@ -66,17 +64,17 @@ function doHighlight(frags) {
 
   var pat = new RegExp(frags.join("|"),"gi");
 
-  gatsoStop("highlight-prep");
+  Gatso.stop("highlight-prep");
 
 
-  gatsoStart("highlight-find");
+  Gatso.start("highlight-find");
   var ranges = findText(pat);
-  gatsoStop("highlight-find");
+  Gatso.stop("highlight-find");
 
-  gatsoStart("highlight-apply");
+  Gatso.start("highlight-apply");
   highlightRanges(ranges);
-  gatsoStop("highlight-apply");
-  gatsoReport();
+  Gatso.stop("highlight-apply");
+  Gatso.report();
 };
 
 
@@ -91,10 +89,26 @@ function removeHighlight() {
 };
 
 
+/* start CHROME */
 $( document ).ready( function() {
   var details = extract_article();
-  chrome.extension.sendMessage({'method': 'textExtracted', 'pageDetails': details});
+  chrome.runtime.sendMessage({'method': 'textExtracted', 'pageDetails': details});
 });
 
+chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
+    // Do something
+    //
+    console.log("content.js onMessage: ", req);
+    switch( req.method) {
+      case "highlight":
+        doHighlight(req.frags);
+        break;
+      case "noHighlight":
+        removeHighlight();
+        break;
+    }
+});
+
+/* end CHROME */
 
 
