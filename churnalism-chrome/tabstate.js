@@ -39,6 +39,9 @@ function TabState(url, guiUpdateFunc) {
 }
 
 TabState.prototype.lookupFinished = function(lookupResults) {
+
+  console.log("lookupFinished");
+  console.log(lookupResults);
   /*
   console.log("lookupFinished");
   console.log("--------------------------");
@@ -114,7 +117,7 @@ TabState.prototype.textReady = function(pageDetails) {
 
 TabState.prototype.startLookup = function() {
   var state = this;
-  var search_url = "http://new.churnalism.com/search/";
+  var search_url = "http://new.churnalism.com/search";
 
   console.log("startLookup("+this.url+")");
   this.lookupState = "pending";
@@ -122,7 +125,8 @@ TabState.prototype.startLookup = function() {
 
   // TODO: factor out platform-specific requests
 
-  /* firefox version */
+  /* FIREFOX version */
+  /*
   var req = Request({
     url: search_url,
     content: { title: this.pageDetails.title,
@@ -135,23 +139,29 @@ TabState.prototype.startLookup = function() {
         state.lookupError();
       }
     }
-    /* TODO: onError? */
+    // TODO: onError?
   }).post();
-  /* chrome version */
-  /*
-  $.ajax({
-    type: "GET",
-    url: search_url,
-    dataType: 'json',
-    success: function(result) {
-      state.lookupFinished(result);
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      state.lookupError();
-      console.log("Error:", jqXHR, textStatus, errorThrown);
-    }
-  });
   */
+  /* end FIREFOX version */
+
+  /* CHROME version */
+  // TODO: could use this on firefox too?
+  var xhr = new XMLHttpRequest();
+  var params = "title=" + encodeURIComponent(this.pageDetails.title) +
+    "&text=" + encodeURIComponent(this.pageDetails.text);
+  xhr.open("POST", search_url, true);
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xhr.onload = function() {
+    if( this.status == 200 ) {
+      var resp = JSON.parse(this.responseText);
+      state.lookupFinished(resp);
+    } else {
+      state.lookupError();
+    }
+  };
+  // TODO: onError?
+  xhr.send(params );
+  /* end CHROME version */
 };
 
 

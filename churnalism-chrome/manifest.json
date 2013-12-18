@@ -12,7 +12,7 @@
     "webNavigation"
   ],
   "background": {
-    "scripts": ["gatso.js","news_sites.js","tabstate.js","parseuri.js","background.js"]
+    "scripts": ["underscore.js","underscore.string.js","parseuri.js","gatso.js","news_sites.js","match.js","tabstate.js","background.js"]
   },
   "browser_action": {
     "default_icon": "icon.png",

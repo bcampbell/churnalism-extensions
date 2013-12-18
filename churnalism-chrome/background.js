@@ -9,9 +9,9 @@ options = {};
 tabmap = {};
 
 
-function getState(tab) {
-  if(tab.id in tabmap) {
-    return tabmap[tab.id].state;
+function getState(tabId) {
+  if(tabId in tabmap) {
+    return tabmap[tabId].state;
   } else {
     return null;
   }
@@ -139,9 +139,9 @@ function buildMatchFn(sites) {
  * the state tracker object calls this every time something changes
  * (eg lookup request returns)
  */
-function update_gui()
+function update_gui(state)
 {
-  console.log("update_gui()\n");
+  console.log("update_gui()", state);
   // TODO: update icon/badge/tooltip
 
   // if the tab is active, update the popup window
@@ -225,12 +225,13 @@ function initListeners() {
 
     // if site is whitelisted (and not blacklisted), start tracking the tab
     var url = details.url;
+    var tabId = details.tabId;
     if( onWhitelist(url) ) {
       if( !onBlacklist(url) ) {
-        console.log("begin tracking tab: ", url);
+        console.log("tab " + tabId + ": tracking", url);
         var state = new TabState(url, function(state) { update_gui();} );
-        tabmap[details.tabId] = { 'state': state};
-        executeScriptsSynchronously( details.tabId, contentScripts );
+        tabmap[tabId] = { 'state': state};
+        executeScriptsSynchronously(tabId, contentScripts);
         update_gui();
       } else {
         console.log("backlisted: ", url);
@@ -248,6 +249,20 @@ function initListeners() {
   chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     if(tabId in tabmap) {
       delete tabmap[tabId];
+    }
+  });
+
+
+  chrome.extension.onMessage.addListener( function(req, sender, sendResponse) {
+    console.log( "background.js: received "+ req.method + " from tab "+sender.tab.id);
+    console.log(req);
+
+    var state = getState(sender.tab.id);
+    if( !state )
+      return; // we're not covering this page
+    if(req.method == "textExtracted") {
+      // content script has read the article text - we can start a lookup now
+      state.textReady(req.pageDetails);
     }
   });
 }

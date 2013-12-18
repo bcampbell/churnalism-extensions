@@ -1,5 +1,3 @@
-console.log("Hello from content");
-
 var log = new LogWrapper(LogWrapper.DEBUG);
 
 
@@ -32,12 +30,12 @@ var extract_article = function () {
 
     // TODO:
 //    self.port.emit("textExtracted", pageDetails);
+  return pageDetails;
 };
 
 
 
 function doHighlight(frags) {
-  console.log("highlighting " + frags.length + " frags")
 
   // zap any previous highlight
   removeHighlight();
@@ -94,10 +92,9 @@ function removeHighlight() {
 
 
 $( document ).ready( function() {
-console.log("CONTENT: extract_article()");
-  extract_article();
+  var details = extract_article();
+  chrome.extension.sendMessage({'method': 'textExtracted', 'pageDetails': details});
 });
 
 
-console.log("CONTENT: hello");
 
