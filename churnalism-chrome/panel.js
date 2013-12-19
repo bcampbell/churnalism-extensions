@@ -6,11 +6,11 @@ var tmpl = {
   matchesFound: document.getElementById("matches-found-tmpl").innerHTML
 };
 
-function bind(state,options) {
+function display(state,options) {
   if( state === undefined ||state === null ) {
     $('#content').html(Mustache.render(tmpl.notTracking,{}));
     $('.do-lookup').click(function() {
-      emit('doLookup');
+      doLookup();
     });
     return;
   }
@@ -52,11 +52,11 @@ function bind(state,options) {
   $('.match-item').click(function() {
     if($(this).is('.is-highlighted')) {
       $('.match-item').removeClass('is-highlighted');
-      emit('noHighlight');
+      highlightOff();
     } else {
       $('.match-item').removeClass('is-highlighted');
       $(this).addClass('is-highlighted');
-      emit('doHighlight',this.id);
+      highlightOn(this.id);
     }
   });
 
@@ -65,20 +65,34 @@ function bind(state,options) {
 
 /* start CHROME */
 
-function emit(msg) {
-  console.log(msg);
+var bg = chrome.extension.getBackgroundPage();
+
+// in chrome, the popup will close every time we change tabs anyway,
+// so ok to stash the tabId on startup to avoid tabs.query()+callbacks everywhere!
+var ourTabId = null;
+
+
+
+/* when popup is opened show state for current tab (afterwards, background
+   will call display() again if state changes */
+chrome.tabs.query({active: true, lastFocusedWindow: true, windowType: 'normal'}, function(tabs) {
+  if(tabs.length>0) {
+    ourTabId = tabs[0].id;
+    display(bg.getState(tabs[0].id), bg.options);
+  }
+});
+
+function doLookup() {
+  console.log("doLookup()"); 
 }
 
-chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
-    // Do something
-    //
-    console.log("panel.js onMessage: ", req);
-    switch(req.method) {
-      case "bindPopup":
-        bind( req.state, req.options);
-        break;
-    }
-});
+function highlightOn(docId) {
+  bg.doHighlightOn(ourTabId,docId);
+}
+
+function highlightOff() {
+  bg.doHighlightOff(ourTabId);
+}
 
 /* end CHROME */
 

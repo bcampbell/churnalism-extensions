@@ -43,33 +43,29 @@ Found no press releases matching this article.
 </div>
     <span class="hint">(Click to highlight matching text)</span>
 <div class="results-list">
-</div>
-</script>
-
-<!-- template for displaying an individual matching document -->
-<script id="match-tmpl" type="text/x-jquery-tmpl">
-<div class="match-item" id="<%= elementId() %>" >
-  <div class="doc-details">
+{{#associations}}
+  <div class="match-item" id="{{ elementId }}" >
+    <div class="doc-details">
       <div class="highlight-icon" title="Click to highlight matching text"></div>
-    <div class="highlight-group" title="Click to highlight matching text">
-      <h3 class="doc-title"><%=shortTitle()%></h3>
-      <span class="doc-pubdate"><%=published()%></span>
-    </div>
-      <div class="doc-meta">
-        <a target="_blank" href="<%=permalink()%>">
-            <strong><%=type()%></strong> from <span class="source"><%=source()%></span></a><br/>
+      <div class="highlight-group" title="Click to highlight matching text">
+        <h3 class="doc-title">{{ shortTitle }}</h3>
+        <span class="doc-pubdate">{{ published}}</span>
       </div>
-  </div>
+      <div class="doc-meta">
+        <a target="_blank" href="{{ permalink }}">
+        <strong>{{ type }}</strong> from <span class="source">{{ source }}</span></a><br/>
+      </div>
+    </div>
 
-  <div class="churn-metrics">
-    <span class="rating">
-      <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
-      <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
-      <img src="recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
-    </span>
-    <span class="metric"><%=cut()%>%</span> <span class="metric-label">recycled</span></br>
-    <span class="metric"><%=overlap()%></span> <span class="metric-label">chars</span>
-  </span>
+    <div class="churn-metrics">
+      <span class="rating">
+          <!-- TODO -->
+      </span>
+      <span class="metric">{{ cut }}</span> <span class="metric-label">% recycled</span></br>
+      <span class="metric">{{ overlap }}</span> <span class="metric-label">chars</span>
+    </div>
+  </div>
+{{/associations}}
 </div>
 </script>
 
@@ -95,13 +91,17 @@ self = { port: {emit: console.log, on: console.log}};
 <script src="test_panel.js"></script>
 END TESTING -->
 
+
+<!-- start CHROME -->
     <script src="lib/jquery-1.7.1.min.js"></script>
     <script src="lib/mustache.js"></script>
     <script src="lib/underscore.js"></script>
     <script src="lib/underscore.string.js"></script>
+    <script src="lib/moment.min.js"></script>
     <script src="compat.js"></script>
     <script src="match.js"></script>
     <script src="panel.js"></script>
+<!-- end CHROME -->
 
 </body>
 </html>

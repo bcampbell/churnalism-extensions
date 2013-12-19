@@ -132,13 +132,19 @@ function buildMatchFn(sites) {
  */
 
 
-function cheesyHighlightHack( state,tabId) {
-  // CHEESY HACK - apply highlighting for first doc
-  
+function doHighlightOn(tabId,docElementId) {
+  var state = getState(tabId);
+  if(state===null) {
+    return;
+  }
+
   // calculate fragments of text to highlight
+  var doc = _.find(state.lookupResults.associations, function(d) { return d.elementId()==docElementId });
+  console.log(doc);
+  if( !doc) {
+    return;
+  }
   var txt = state.lookupResults.text;
-  var doc = state.lookupResults.associations[0];
-  var docId = doc.elementId();
   var frags = _.map(doc.leftFragments, function(f) {
     return txt.substr(f[0],f[1]);
   });
@@ -146,8 +152,19 @@ function cheesyHighlightHack( state,tabId) {
   chrome.tabs.sendMessage(tabId,{'method':'highlight','frags':frags});
 
 
-  state.currentlyHighlighted = docId;
+  state.currentlyHighlighted = docElementId;
 
+}
+
+function doHighlightOff(tabId) {
+  chrome.tabs.sendMessage(tabId,{'method':'noHighlight'});
+  var state = getState(tabId);
+  if(state===null) {
+    return;
+  }
+
+  // calculate fragments of text to highlight
+  state.currentlyHighlighted = null;
 }
 
 
@@ -163,75 +180,42 @@ function update_gui(tabId)
 
     // update the Browser Action button
     var badgeText = "";
+    var icon = "icon-off.png";
+    var tooltip = "Churnalism findings";
     if(state) {
       if(state.isLookupReady()) {
+        icon = "icon.png";
         badgeText = "" + state.lookupResults.associations.length;
       }
     } else {
     }
     chrome.browserAction.setBadgeText( {text: badgeText, tabId: tab.id});
+    chrome.browserAction.setIcon( {path:icon, tabId: tab.id});
+    chrome.browserAction.setTitle( {title: tooltip, tabId: tab.id});
 
     if(tab.active) {
-      // update any displayed popup
-      chrome.runtime.sendMessage({'method': 'bindPopup', 'state': state, 'options': options});
+      // update popup, if shown
+      var popups = chrome.extension.getViews({type: "popup",windowId: tab.windowId});
+      if(popups.length>0) {
+        popups[0].display(state,options);
+      }
     }
 
     // check for notification reqs
     if( state!==null && state.churnAlertPending ) {
-      notifyChurn(state);
-      cheesyHighlightHack(state,tabId);
+      // TODO: want to show an infobar here... but API is experimental still :-(
+//      notifyChurn(state);
       state.churnAlertPending = false;
     }
   });
-
-
-  // TODO: update icon/badge/tooltip
-
-  // if the tab is active, update the popup window
-//  if(tabs.activeTab===tab) {
-//    ourPanel.port.emit('bind', state, options);
-
-    // TESTING: dump out state as JSON to use in test_panel.html
-    /*
-    console.log("+++++++++++++++++++++++++++++");
-    var foo = JSON.stringify(state);
-    foo = foo.replace("\\","\\\\",'g')
-    foo = foo.replace("'","\\'",'g')
-    console.log("state = '" + foo + "';");
-    console.log("+++++++++++++++++++++++++++++");
-    */
-
-    // show a notificationbox if one's been requested
-/*    if( state!==null && state.churnAlertPending ) {
-      notifyChurn(state);
-      state.churnAlertPending = false;
-    }
-  }
-  */
 }
 
 
-function notifyChurn(state) {
-  var n = state.lookupResults.associations.length;
-  var msg = "Uh-oh... this article might be churnalism - ";
-  if( n==1) {
-    msg = msg + "1 match found";
-  } else {
-    msg = msg + n + " matches found";
-  }
-
-//  var total =0;
-//  _.each(frags, function(f) { console.log("'"+f+"': " + f.length); total += f.length; });
-//  console.log(total);
-
-  // TODO
-}
 
 
 
 // TODO: popup handling here!
 // - manual lookup
-// - highlight/unhighlight
 
 
 // execute a list of scripts, in order
