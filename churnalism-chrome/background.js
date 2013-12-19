@@ -132,6 +132,7 @@ function buildMatchFn(sites) {
  */
 
 
+// popup calls this to turn on in-page highlighting
 function doHighlightOn(tabId,docElementId) {
   var state = getState(tabId);
   if(state===null) {
@@ -151,11 +152,11 @@ function doHighlightOn(tabId,docElementId) {
 
   chrome.tabs.sendMessage(tabId,{'method':'highlight','frags':frags});
 
-
   state.currentlyHighlighted = docElementId;
-
 }
 
+
+// popup calls this to turn off in-page highlighting
 function doHighlightOff(tabId) {
   chrome.tabs.sendMessage(tabId,{'method':'noHighlight'});
   var state = getState(tabId);
@@ -165,6 +166,14 @@ function doHighlightOff(tabId) {
 
   // calculate fragments of text to highlight
   state.currentlyHighlighted = null;
+}
+
+
+// popup calls this to kick off a manual lookup
+function doLookup(tabId) {
+  chrome.tabs.get(tabId, function(tab) {
+    trackTab(tab.id,tab.url);
+  });
 }
 
 
@@ -243,6 +252,17 @@ var contentScripts = [ "lib/jquery-1.7.1.min.js",
     "content.js" ];
 
 
+// begin tracking a tab - inject content scripts and css,
+// and create a TabState object to keep track of progress
+function trackTab(tabId,url) {
+  console.log("tab " + tabId + ": tracking", url);
+  var state = new TabState(url, function(state) { update_gui(tabId);} );
+  tabmap[tabId] = { 'state': state};
+  executeScriptsSynchronously(tabId, contentScripts);
+  chrome.tabs.insertCSS(tabId,{file:'content.css'});
+  update_gui(tabId);
+}
+
 function initListeners() {
   // install hook so we know when user starts loading a new page
   // (called after http redirects have been handled)
@@ -260,12 +280,7 @@ function initListeners() {
     var tabId = details.tabId;
     if( onWhitelist(url) ) {
       if( !onBlacklist(url) ) {
-        console.log("tab " + tabId + ": tracking", url);
-        var state = new TabState(url, function(state) { update_gui(tabId);} );
-        tabmap[tabId] = { 'state': state};
-        executeScriptsSynchronously(tabId, contentScripts);
-        chrome.tabs.insertCSS(tabId,{file:'content.css'});
-        update_gui(tabId);
+        trackTab(tabId,url);
       } else {
         console.log("backlisted: ", url);
       }

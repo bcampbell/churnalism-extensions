@@ -8,7 +8,7 @@ var tmpl = {
 
 function display(state,options) {
   if( state === undefined ||state === null ) {
-    $('#content').html(Mustache.render(tmpl.notTracking,{}));
+    $('#content').html(Mustache.render(tmpl.notTracking, {shouldAllowManualCheck: shouldAllowManualCheck}));
     $('.do-lookup').click(function() {
       doLookup();
     });
@@ -70,20 +70,34 @@ var bg = chrome.extension.getBackgroundPage();
 // in chrome, the popup will close every time we change tabs anyway,
 // so ok to stash the tabId on startup to avoid tabs.query()+callbacks everywhere!
 var ourTabId = null;
-
+var ourURL = "";
 
 
 /* when popup is opened show state for current tab (afterwards, background
    will call display() again if state changes */
 chrome.tabs.query({active: true, lastFocusedWindow: true, windowType: 'normal'}, function(tabs) {
   if(tabs.length>0) {
-    ourTabId = tabs[0].id;
-    display(bg.getState(tabs[0].id), bg.options);
+    var tab = tabs[0];
+    ourTabId = tab.id;
+    ourURL = tab.url;
+    display(bg.getState(tab.id), bg.options);
   }
 });
 
+
+function shouldAllowManualCheck() {
+  var o = parseUri(ourURL);
+  console.log(o);
+  var proto = o.protocol.toLowerCase();
+  if( proto !='http' && proto != 'https') {
+    return false;
+  }
+  return true;
+}
+
+
 function doLookup() {
-  console.log("doLookup()"); 
+  bg.doLookup(ourTabId);
 }
 
 function highlightOn(docId) {

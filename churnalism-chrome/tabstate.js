@@ -1,23 +1,14 @@
-/* FIREFOX */
+/* start FIREFOX */
 /*
 var Request = require("request").Request;
 var cookSearchResults = require("match").cookSearchResults;
 var addHelpers = require("match").addHelpers;
 */
-
+/* end FIREFOX */
 
 // TabState tracks all the stuff we want to track for each tab
-
-/* NOTES:
- * we've got a couple of things to track for each augmented page:
- * 1) the lookup request to server. We want to kick this off as early
- *    as we can.
- * 2) the state of the page content. We can't display any overlays until the
- *    page is ready.
- * We track the states of these by adding an object to the tab object.
- */
-
-
+//   - data about the page sent from the content script
+//   - progress of request to churnalism server
 
 function TabState(url, guiUpdateFunc) {
   this.url = url;
@@ -27,42 +18,20 @@ function TabState(url, guiUpdateFunc) {
   this.lookupState = "none"; // none, pending, ready, error
   this.lookupResults = null;  // only set if state is 'ready'
 
-  this.pageDetails = null; // set by textReady()
+  this.pageDetails = null; // info from content script, set by textReady()
 
   // elementId ('doc-xx-yy') of document currently highlighted
   this.currentlyHighlighted = null;
 
   // do we want to notify the user?
   this.churnAlertPending = false;
-  // might already be a popup active
-//  this._guiUpdateFunc(this);
 }
+
 
 TabState.prototype.lookupFinished = function(lookupResults) {
 
   console.log("lookupFinished");
-  console.log(lookupResults);
-  /*
-  console.log("lookupFinished");
-  console.log("--------------------------");
-  if(lookupResults.success) {
-    console.log("SUCCESS");
-    var r = lookupResults;
-    console.log("Totalrows=" + r.totalRows);
-    console.log("associations: " + r.associations.length);
-    for (var i=0; i<r.associations.length; i++) {
-      var as = r.associations[i];
-      var meta = as.metaData;
-      console.log(meta.type + "("+ meta.source + "): " + meta.permalink);
-    }
-  } else {
-    console.log("FAILED");
-  }
-  console.log("--------------------------");
-*/
-
   if(this.lookupState=="none" || this.lookupState=="pending") {
-
 
     // add the text we searched on - server doesn't return it
     lookupResults.text = this.pageDetails.text;
@@ -123,9 +92,7 @@ TabState.prototype.startLookup = function() {
   this.lookupState = "pending";
   this._guiUpdateFunc(this);
 
-  // TODO: factor out platform-specific requests
-
-  /* FIREFOX version */
+  /* start FIREFOX */
   /*
   var req = Request({
     url: search_url,
@@ -142,10 +109,9 @@ TabState.prototype.startLookup = function() {
     // TODO: onError?
   }).post();
   */
-  /* end FIREFOX version */
+  /* end FIREFOX */
 
-  /* CHROME version */
-  // TODO: could use this on firefox too?
+  /* start CHROME */
   var xhr = new XMLHttpRequest();
   var params = "title=" + encodeURIComponent(this.pageDetails.title) +
     "&text=" + encodeURIComponent(this.pageDetails.text);
@@ -159,14 +125,15 @@ TabState.prototype.startLookup = function() {
       state.lookupError();
     }
   };
-  // TODO: onError?
+  xhr.onerror = function() { state.lookupError(); };
+  xhr.onabort = function() { state.lookupError(); };
   xhr.send(params );
-  /* end CHROME version */
+  /* end CHROME */
 };
 
 
 
-// some helpers for use in panel.html template (ashe can only do boolean if statements)
+// some helpers for use in panel.html template
 TabState.prototype.isLookupNone = function() { return this.lookupState == 'none'; };
 TabState.prototype.isLookupReady = function() { return this.lookupState == 'ready'; };
 TabState.prototype.isLookupPending = function() { return this.lookupState == 'pending'; };
@@ -175,76 +142,6 @@ TabState.prototype.isLookupError = function() { return this.lookupState == 'erro
 TabState.prototype.isDebugSet = function() { return options.debug; };
 TabState.prototype.getDebugTxt = function() { return JSON.stringify(this,null," "); };
 
-TabState.prototype.wasArticleFound = function() { return this.lookupState == 'ready' && this.lookupResults.status=='found'; };
-
-TabState.prototype.isSourcingRequired = function() {
-  if( this.wasArticleFound() ) {
-    return this.lookupResults.needs_sourcing;
-  }
-  
-  if( this.pageDetails && !this.pageDetails.isDefinitelyNotArticle && this.pageDetails.indicatorsFound ) {
-    return true;
-  }
-  return false;
-};
-
-
-
-
-
-TabState.prototype.calcWidgetIconState = function() {
-  return "";
-};
-
-
-
-TabState.prototype.calcWidgetTooltip = function() {
-  var tooltip_txt = "";
-  switch( this.lookupState ) {
-    case "none":
-      tooltip_txt = "waiting for page to load...";
-      break;
-    case "pending":
-      tooltip_txt = "checking new.churnalism.com...";
-      break;
-    case "ready":
-      {
-        /*
-        var ad = this.lookupResults;
-        if( ad.status=='found') {
-          var src_txt;
-          switch(ad.sources.length) {
-            case 0: src_txt="no sources"; break;
-            case 1: src_txt="1 source"; break;
-            default: src_txt="" + ad.sources.length + " sources"; break;
-          }
-          var label_txt;
-          switch(ad.labels.length) {
-            case 0: label_txt="no warning labels"; break;
-            case 1: label_txt="1 warning label"; break;
-            default: label_txt="" + ad.labels.length + " warning labels"; break;
-          }
-          tooltip_txt = src_txt + ", " + label_txt;
-        } else {
-          tooltip_txt = "no sources or warning labels";
-        } 
-        */
-        tooltip_txt = "Search complete:";
-        var r = this.lookupResults;
-        if( r.success) {
-          tooltip_txt += " " + r.associations.length + " matches";
-        } else {
-          tooltip_txt += " failed";
-        }
-      }
-      break;
-    case "error":
-      tooltip_txt = "Error";
-      break;
-  }
-
-  return tooltip_txt;
-};
 
 
 
@@ -253,7 +150,4 @@ try {
 } catch (e) {
   /* ignore - we're just not in a CommonJS environment */
 }
-
-
-
 

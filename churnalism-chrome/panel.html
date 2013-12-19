@@ -21,7 +21,9 @@
 
 <script id="not-tracking-tmpl" type="text/x-jquery-tmpl">
   <p>This page has not been checked for churn.</p>
+  {{#shouldAllowManualCheck}}
   <a class="do-lookup" href="#">Check it now</a>
+  {{/shouldAllowManualCheck}}
 </script>
 
 <script id="please-wait-tmpl" type="text/x-jquery-tmpl">
@@ -98,6 +100,7 @@ END TESTING -->
     <script src="lib/underscore.js"></script>
     <script src="lib/underscore.string.js"></script>
     <script src="lib/moment.min.js"></script>
+    <script src="lib/parseuri.js"></script>
     <script src="compat.js"></script>
     <script src="match.js"></script>
     <script src="panel.js"></script>
