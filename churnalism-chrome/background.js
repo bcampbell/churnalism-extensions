@@ -174,7 +174,7 @@ function doHighlightOff(tabId) {
  */
 function update_gui(tabId)
 {
-  console.log(tabId + ": update_gui()");
+//  console.log(tabId + ": update_gui()");
   chrome.tabs.get(tabId, function(tab) {
     var state = getState(tab.id);
 
@@ -182,9 +182,9 @@ function update_gui(tabId)
     var badgeText = "";
     var icon = "icon-off.png";
     var tooltip = "Churnalism findings";
-    if(state) {
-      if(state.isLookupReady()) {
-        icon = "icon.png";
+    if(state && state.isLookupReady()) {
+      icon = "icon.png";
+      if(state.lookupResults.associations.length >0) {
         badgeText = "" + state.lookupResults.associations.length;
       }
     } else {
