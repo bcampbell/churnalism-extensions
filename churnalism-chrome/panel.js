@@ -2,6 +2,7 @@
 var tmpl = {
   notTracking: document.getElementById("not-tracking-tmpl").innerHTML,
   pleaseWait: document.getElementById("please-wait-tmpl").innerHTML,
+  lookupFailed: document.getElementById("lookup-failed-tmpl").innerHTML,
   matchesNotFound: document.getElementById("matches-not-found-tmpl").innerHTML,
   matchesFound: document.getElementById("matches-found-tmpl").innerHTML
 };
@@ -20,8 +21,12 @@ function display(state,options) {
     return;
   }
  
-  if( !state.lookupResults ) {
+  if( state.lookupState =='pending') {
     $('#content').html(Mustache.render(tmpl.pleaseWait,{msg:"Checking with churnalism.com"}));
+    return;
+  }
+  if( state.lookupState =='error') {
+    $('#content').html(Mustache.render(tmpl.lookupFailed,{}));
     return;
   }
 
@@ -86,13 +91,7 @@ chrome.tabs.query({active: true, lastFocusedWindow: true, windowType: 'normal'},
 
 
 function shouldAllowManualCheck() {
-  var o = parseUri(ourURL);
-  console.log(o);
-  var proto = o.protocol.toLowerCase();
-  if( proto !='http' && proto != 'https') {
-    return false;
-  }
-  return true;
+  return bg.isValidURL(ourURL);
 }
 
 

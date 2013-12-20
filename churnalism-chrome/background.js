@@ -141,7 +141,7 @@ function doHighlightOn(tabId,docElementId) {
 
   // calculate fragments of text to highlight
   var doc = _.find(state.lookupResults.associations, function(d) { return d.elementId()==docElementId });
-  console.log(doc);
+  //console.log(doc);
   if( !doc) {
     return;
   }
@@ -231,7 +231,7 @@ function update_gui(tabId)
 var executeScriptsSynchronously = function (tab_id, files, callback) {
     if (files.length > 0) {
         var file = files[0];
-        console.log("inject " + file);
+        //console.log("inject " + file);
         var rest = files.slice(1);
         chrome.tabs.executeScript(tab_id, {file: file}, function(){
             if (rest.length > 0) {
@@ -263,6 +263,25 @@ function trackTab(tabId,url) {
   update_gui(tabId);
 }
 
+
+// only want to check article pages
+// - http(s) only
+// - no front pages
+function isValidURL(url) {
+  var o = parseUri(url);
+  var proto = o.protocol.toLowerCase();
+  if( proto !='http' && proto != 'https') {
+    return false;
+  }
+  if( o.path=='' || o.path=='/') {
+    return false;
+  }
+
+  return true;
+}
+
+
+
 function initListeners() {
   // install hook so we know when user starts loading a new page
   // (called after http redirects have been handled)
@@ -280,7 +299,11 @@ function initListeners() {
     var tabId = details.tabId;
     if( onWhitelist(url) ) {
       if( !onBlacklist(url) ) {
-        trackTab(tabId,url);
+        if( isValidURL(url) ) {
+          trackTab(tabId,url);
+        } else {
+          console.log("not a url of interest: ",url);
+        }
       } else {
         console.log("backlisted: ", url);
       }
