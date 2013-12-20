@@ -4,7 +4,7 @@
   "name": "Churnalism UK",
   "description": "Highlights press release material in news articles (for the UK).",
   "version": "0.2",
-
+  "icons": { "48": "icon.png" },
   "permissions": [
     "http://*/",
     "https://*/",
