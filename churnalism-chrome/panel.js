@@ -68,7 +68,7 @@ function display(state,options) {
 }
 
 
-/* start CHROME */
+/* ----- start CHROME ----- */
 
 var bg = chrome.extension.getBackgroundPage();
 
@@ -78,8 +78,8 @@ var ourTabId = null;
 var ourURL = "";
 
 
-/* when popup is opened show state for current tab (afterwards, background
-   will call display() again if state changes */
+// when popup is opened show state for current tab (afterwards, background
+// will call display() again if state changes.
 chrome.tabs.query({active: true, lastFocusedWindow: true, windowType: 'normal'}, function(tabs) {
   if(tabs.length>0) {
     var tab = tabs[0];
@@ -90,24 +90,26 @@ chrome.tabs.query({active: true, lastFocusedWindow: true, windowType: 'normal'},
 });
 
 
-function shouldAllowManualCheck() {
-  return bg.isValidURL(ourURL);
-}
+function shouldAllowManualCheck() { return bg.isValidURL(ourURL); }
+function doLookup() { bg.doLookup(ourTabId); }
+function highlightOn(docId) { bg.doHighlightOn(ourTabId,docId); }
+function highlightOff() { bg.doHighlightOff(ourTabId); }
+
+/* ----- end CHROME ----- */
 
 
-function doLookup() {
-  bg.doLookup(ourTabId);
-}
+/* ----- start FIREFOX -----
 
-function highlightOn(docId) {
-  bg.doHighlightOn(ourTabId,docId);
-}
+function shouldAllowManualCheck() { return true; } // TODO
 
-function highlightOff() {
-  bg.doHighlightOff(ourTabId);
-}
+function doLookup() { self.port.emit('doLookup'); }
+function highlightOn(docId) { self.port.emit('doHighlight', docId); }
+function highlightOff() { self.port.emit('noHighlight'); }
 
-/* end CHROME */
+self.port.on("bind", function(state,options) {
+  display(state,options);
+});
 
+----- end FIREFOX ----- */
 
 

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# script to check the various near-identical files shared between
+# firefox and chrome versions
+
+C=churnalism-chrome
+F=churnalism-firefox
+
+
+# compare files, but allow marker lines to differ
+function checkum {
+    if ! diff <(filt $1) <(filt $2) >/dev/null; then
+        echo "diff $1 $2"
+    fi
+} 
+
+
+# blank out all marker lines, eg:
+#    end CHROME */
+#    /* start CHROME */
+#    <!-- end FIREFOX -->
+#    <!-- start FIREFOX
+function filt {
+    cat $1 | perl -n -e 's%^\W*(start|end)\s+[A-Z]+\W*$%\n%; print $_;'
+}
+
+checkum $C/panel.js $F/data/panel.js
+checkum $C/panel.html $F/data/panel.html
+checkum $C/panel.css $F/data/panel.css
+
+checkum $C/content.js $F/data/content.js
+checkum $C/content.css $F/data/content.css
+
+
+
+checkum $C/tabstate.js $F/lib/tabstate.js
+checkum $C/match.js $F/lib/match.js
+checkum $C/gatso.js $F/lib/gatso.js
+
+checkum $C/news_sites.js $F/lib/news_sites.js

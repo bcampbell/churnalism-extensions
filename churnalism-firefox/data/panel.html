@@ -7,67 +7,71 @@
     <!-- TESTING 
     <link rel="stylesheet" href="test_panel.css" type="text/css">
     END TESTING -->
-
   </head>
   <body>
 
+<script id="mustache-test-tmpl" type="text/x-jquery-tmpl">
+    <p>{{num_matches}} matches:</p>
+    <ul>
+    {{#associations}}
+    <li>{{title}}, {{permalink}}</li>
+    {{/associations}}
+</ul>
+</script>
 
 <script id="not-tracking-tmpl" type="text/x-jquery-tmpl">
   <p>This page has not been checked for churn.</p>
+  {{#shouldAllowManualCheck}}
   <a class="do-lookup" href="#">Check it now</a>
+  {{/shouldAllowManualCheck}}
 </script>
 
 <script id="please-wait-tmpl" type="text/x-jquery-tmpl">
-    <p><img src="busy.gif"/> Please wait: <%= msg %></p>
+    <p><img src="busy.gif"/> Please wait: {{msg}}</p>
+</script>
+
+<script id="lookup-failed-tmpl" type="text/x-jquery-tmpl">
+  <strong>Sorry, failed while checking this page</strong>
 </script>
 
 <!-- main template for showing no results -->
-<script id="search-no-results-tmpl" type="text/x-jquery-tmpl">
+<script id="matches-not-found-tmpl" type="text/x-jquery-tmpl">
 Found no press releases matching this article.
 </script>
 
 <!-- main template for showing search results -->
-<script id="search-results-tmpl" type="text/x-jquery-tmpl">
+<script id="matches-found-tmpl" type="text/x-jquery-tmpl">
     <div class="churn-alert">
     <span>Uh-oh... this article might be churnalism</span> - 
-    <strong>
-        <% if(associations.length==1) { %>
-    1 match found
-    <% } else { %>
-    <%= associations.length %> matches found
-    <% } %>
+    <strong>{{associations.length}} matches found
 </strong>
 <br/>
 </div>
     <span class="hint">(Click to highlight matching text)</span>
 <div class="results-list">
-</div>
-</script>
-
-<!-- template for displaying an individual matching document -->
-<script id="match-tmpl" type="text/x-jquery-tmpl">
-<div class="match-item" id="<%= elementId() %>" >
-  <div class="doc-details">
+{{#associations}}
+  <div class="match-item" id="{{ elementId }}" >
+    <div class="doc-details">
       <div class="highlight-icon" title="Click to highlight matching text"></div>
-    <div class="highlight-group" title="Click to highlight matching text">
-      <h3 class="doc-title"><%=shortTitle()%></h3>
-      <span class="doc-pubdate"><%=published()%></span>
-    </div>
-      <div class="doc-meta">
-        <a target="_blank" href="<%=permalink()%>">
-            <strong><%=type()%></strong> from <span class="source"><%=source()%></span></a><br/>
+      <div class="highlight-group" title="Click to highlight matching text">
+        <h3 class="doc-title">{{ shortTitle }}</h3>
+        <span class="doc-pubdate">{{ published}}</span>
       </div>
-  </div>
+      <div class="doc-meta">
+        <a target="_blank" href="{{ permalink }}">
+        <strong>{{ type }}</strong> from <span class="source">{{ source }}</span></a><br/>
+      </div>
+    </div>
 
-  <div class="churn-metrics">
-    <span class="rating">
-      <img src="recycle-<%=(score()>0)?"on":"off"%>.png" alt="1">
-      <img src="recycle-<%=(score()>1)?"on":"off"%>.png" alt="1">
-      <img src="recycle-<%=(score()>2)?"on":"off"%>.png" alt="1">
-    </span>
-    <span class="metric"><%=cut()%>%</span> <span class="metric-label">recycled</span></br>
-    <span class="metric"><%=overlap()%></span> <span class="metric-label">chars</span>
-  </span>
+    <div class="churn-metrics">
+      <span class="rating">
+          <!-- TODO -->
+      </span>
+      <span class="metric">{{ cut }}</span> <span class="metric-label">% recycled</span></br>
+      <span class="metric">{{ overlap }}</span> <span class="metric-label">chars</span>
+    </div>
+  </div>
+{{/associations}}
 </div>
 </script>
 
@@ -92,6 +96,20 @@ self = { port: {emit: console.log, on: console.log}};
 <script src="panel.js"></script>
 <script src="test_panel.js"></script>
 END TESTING -->
+
+
+<!-- start CHROME
+    <script src="lib/jquery-1.7.1.min.js"></script>
+    <script src="lib/mustache.js"></script>
+    <script src="lib/underscore.js"></script>
+    <script src="lib/underscore.string.js"></script>
+    <script src="lib/moment.min.js"></script>
+    <script src="lib/parseuri.js"></script>
+    <script src="compat.js"></script>
+    <script src="match.js"></script>
+    <script src="panel.js"></script>
+ end CHROME -->
+
 </body>
 </html>
 

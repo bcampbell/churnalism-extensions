@@ -248,6 +248,7 @@ ourPanel = Panel( {
     data.url("underscore.js"),
     data.url("underscore.string.js"),
     data.url("moment.min.js"),
+    data.url("mustache.js"),
     // our stuff
     data.url("match.js"),
     data.url("panel.js")],

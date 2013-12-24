@@ -1,32 +1,32 @@
 
-// templates for showing the search results
-var searchNoResultsTemplate = _.template($('#search-no-results-tmpl').html());
-var searchResultsTemplate = _.template($('#search-results-tmpl').html());
-var matchTemplate = _.template($('#match-tmpl').html());
+var tmpl = {
+  notTracking: document.getElementById("not-tracking-tmpl").innerHTML,
+  pleaseWait: document.getElementById("please-wait-tmpl").innerHTML,
+  lookupFailed: document.getElementById("lookup-failed-tmpl").innerHTML,
+  matchesNotFound: document.getElementById("matches-not-found-tmpl").innerHTML,
+  matchesFound: document.getElementById("matches-found-tmpl").innerHTML
+};
 
-// to display when page not on whitelist
-var notTrackingTemplate = _.template($('#not-tracking-tmpl').html());
-
-// to display when waiting (for page to load or search req to return)
-var pleaseWaitTemplate = _.template($('#please-wait-tmpl').html());
-
-function bind(state,options) {
-
+function display(state,options) {
   if( state === undefined ||state === null ) {
-    $('#content').html(notTrackingTemplate());
+    $('#content').html(Mustache.render(tmpl.notTracking, {shouldAllowManualCheck: shouldAllowManualCheck}));
     $('.do-lookup').click(function() {
-      self.port.emit('doLookup');
+      doLookup();
     });
     return;
   }
 
   if( !state.pageDetails ) {
-    $('#content').html(pleaseWaitTemplate({msg:"The page is still loading"}));
+    $('#content').html(Mustache.render(tmpl.pleaseWait,{msg:"The page is still loading"}));
     return;
   }
  
-  if( !state.lookupResults ) {
-    $('#content').html(pleaseWaitTemplate({msg:"Checking with churnalism.com"}));
+  if( state.lookupState =='pending') {
+    $('#content').html(Mustache.render(tmpl.pleaseWait,{msg:"Checking with churnalism.com"}));
+    return;
+  }
+  if( state.lookupState =='error') {
+    $('#content').html(Mustache.render(tmpl.lookupFailed,{}));
     return;
   }
 
@@ -35,16 +35,18 @@ function bind(state,options) {
 
 
   if(results.associations.length > 0 ) {
-    $('#content').html(searchResultsTemplate(results));
+    $('#content').html(Mustache.render(tmpl.matchesFound, results));
 
     // now format and insert each matching document
+    /*
     var prList = $('.results-list');
     _.each( results.associations, function(doc) {
       doc.parent = results;
       prList.append(matchTemplate(doc));
     });
+    */
   } else {
-    $('#content').html(searchNoResultsTemplate(results));
+    $('#content').html(Mustache.render(tmpl.matchesNotFound, {}));
   }
 
   if(state.currentlyHighlighted == null) {
@@ -55,16 +57,59 @@ function bind(state,options) {
   $('.match-item').click(function() {
     if($(this).is('.is-highlighted')) {
       $('.match-item').removeClass('is-highlighted');
-      self.port.emit('noHighlight');
+      highlightOff();
     } else {
       $('.match-item').removeClass('is-highlighted');
       $(this).addClass('is-highlighted');
-      self.port.emit('doHighlight',this.id);
+      highlightOn(this.id);
     }
   });
 
 }
 
 
-self.port.on("bind", bind);
+/* ----- start CHROME -----
+
+var bg = chrome.extension.getBackgroundPage();
+
+// in chrome, the popup will close every time we change tabs anyway,
+// so ok to stash the tabId on startup to avoid tabs.query()+callbacks everywhere!
+var ourTabId = null;
+var ourURL = "";
+
+
+// when popup is opened show state for current tab (afterwards, background
+// will call display() again if state changes.
+chrome.tabs.query({active: true, lastFocusedWindow: true, windowType: 'normal'}, function(tabs) {
+  if(tabs.length>0) {
+    var tab = tabs[0];
+    ourTabId = tab.id;
+    ourURL = tab.url;
+    display(bg.getState(tab.id), bg.options);
+  }
+});
+
+
+function shouldAllowManualCheck() { return bg.isValidURL(ourURL); }
+function doLookup() { bg.doLookup(ourTabId); }
+function highlightOn(docId) { bg.doHighlightOn(ourTabId,docId); }
+function highlightOff() { bg.doHighlightOff(ourTabId); }
+
+----- end CHROME ----- */
+
+
+/* ----- start FIREFOX ----- */
+
+function shouldAllowManualCheck() { return true; } // TODO
+
+function doLookup() { self.port.emit('doLookup'); }
+function highlightOn(docId) { self.port.emit('doHighlight', docId); }
+function highlightOff() { self.port.emit('noHighlight'); }
+
+self.port.on("bind", function(state,options) {
+  display(state,options);
+});
+
+/* ----- end FIREFOX ----- */
+
 
