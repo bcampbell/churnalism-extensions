@@ -1,10 +1,8 @@
-/* start FIREFOX */
-/*
+/* ----- start FIREFOX -----
 var Request = require("request").Request;
 var cookSearchResults = require("match").cookSearchResults;
 var addHelpers = require("match").addHelpers;
-*/
-/* end FIREFOX */
+----- end FIREFOX ----- */
 
 // TabState tracks all the stuff we want to track for each tab
 //   - data about the page sent from the content script
@@ -92,8 +90,7 @@ TabState.prototype.startLookup = function() {
   this.lookupState = "pending";
   this._guiUpdateFunc(this);
 
-  /* start FIREFOX */
-  /*
+  /* ----- start FIREFOX -----
   var req = Request({
     url: search_url,
     content: { title: this.pageDetails.title,
@@ -108,10 +105,9 @@ TabState.prototype.startLookup = function() {
     }
     // TODO: onError?
   }).post();
-  */
-  /* end FIREFOX */
+  ----- end FIREFOX ----- */
 
-  /* start CHROME */
+  /* ----- start CHROME ----- */
   var xhr = new XMLHttpRequest();
   var params = "title=" + encodeURIComponent(this.pageDetails.title) +
     "&text=" + encodeURIComponent(this.pageDetails.text);
@@ -128,7 +124,7 @@ TabState.prototype.startLookup = function() {
   xhr.onerror = function() { state.lookupError(); };
   xhr.onabort = function() { state.lookupError(); };
   xhr.send(params );
-  /* end CHROME */
+  /* ----- end CHROME ----- */
 };
 
 
