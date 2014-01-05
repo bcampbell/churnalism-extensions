@@ -1,5 +1,5 @@
-
-var sites = [
+NewsSites = {
+  sites: [
         /* list from sunlight's churnalism plugin (mostly usa, some uk) */
         "www.google.com/hostednews/...",
         "www.reuters.com",
@@ -340,9 +340,14 @@ var sites = [
         "www.odt.co.nz",
         "www.nzherald.co.nz",
         "www.listener.co.nz"
-    ];
+    ]
+};
 
 
-exports.sites = sites;
+try {
+  exports.sites = NewsSites.sites;
+} catch (e) {
+  /* it's ok - we're in a non-CommonJS context */
+}
 
 

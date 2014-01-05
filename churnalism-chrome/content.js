@@ -32,7 +32,7 @@ var extract_article = function () {
 };
 
 
-
+// highlight any text on the page matching any of the strings in frags
 function doHighlight(frags) {
 
   // zap any previous highlight
@@ -42,7 +42,7 @@ function doHighlight(frags) {
   Gatso.start("highlight-prep");
 
   // munge all the fragements into a big regex
-  for(var i=0; i<frags.length; ++i) {
+  for (var i=0; i<frags.length; ++i) {
     var f = frags[i];
 
     // TODO: handle html entities. Some punctuation, some whitespace
@@ -54,10 +54,6 @@ function doHighlight(frags) {
     // be tolerant of whitespace changes
     f = f.replace(/\s+/g, "\\s+");
 
-/*
-    console.log( '"' + frags[i] +'"' );
-    console.log( ' -> "' + f + '"' );
-*/
     f = "(?:" + f + ")";
     frags[i] = f;
   }
@@ -78,6 +74,7 @@ function doHighlight(frags) {
 };
 
 
+// remove highlighing from the page
 function removeHighlight() {
   $('span.highlight').each(function() {
 			this.parentNode.firstChild.nodeName;
@@ -98,7 +95,6 @@ $( document ).ready( function() {
 chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
     // Do something
     //
-    console.log("content.js onMessage: ", req);
     switch( req.method) {
       case "highlight":
         doHighlight(req.frags);
@@ -108,7 +104,14 @@ chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
         break;
     }
 });
-
 /* end CHROME */
 
+/* start FIREFOX
+$( document ).ready( function() {
+  var details = extract_article();
+  self.port.emit("textExtracted", pageDetails);
+});
+self.port.on('highlight', function(frags) { doHighlight(frags) });
+self.port.on('noHighlight', function() { removeHighlight() });
+end FIREFOX */
 

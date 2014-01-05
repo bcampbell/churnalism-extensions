@@ -1,5 +1,6 @@
 var log = new LogWrapper(LogWrapper.DEBUG);
 
+
 var standardize_quotes = function (text, leftsnglquot, rightsnglquot, leftdblquot, rightdblquot) {
     return text.replace(/[\u2018\u201B]/g, leftsnglquot)
                .replace(/[\u0027\u2019\u201A']/g, rightsnglquot)
@@ -26,29 +27,22 @@ var extract_article = function () {
     }
 
     pageDetails = {'title': title, 'text': article};
-    self.port.emit("textExtracted", pageDetails);
-    /*
-    emitrr.sendRequest({
-        method: 'articleExtracted',
-        text: article,
-        title: title,
-        url: window.location.href
-    });
-    */
+
+  return pageDetails;
 };
 
-self.port.on('highlight', function(frags) {
-  console.log("highlighting " + frags.length + " frags")
 
+// highlight any text on the page matching any of the strings in frags
+function doHighlight(frags) {
 
   // zap any previous highlight
   removeHighlight();
 
   // highlight all the fragment strings
-  gatsoStart("highlight-prep");
+  Gatso.start("highlight-prep");
 
   // munge all the fragements into a big regex
-  for(var i=0; i<frags.length; ++i) {
+  for (var i=0; i<frags.length; ++i) {
     var f = frags[i];
 
     // TODO: handle html entities. Some punctuation, some whitespace
@@ -60,33 +54,27 @@ self.port.on('highlight', function(frags) {
     // be tolerant of whitespace changes
     f = f.replace(/\s+/g, "\\s+");
 
-/*
-    console.log( '"' + frags[i] +'"' );
-    console.log( ' -> "' + f + '"' );
-*/
     f = "(?:" + f + ")";
     frags[i] = f;
   }
 
   var pat = new RegExp(frags.join("|"),"gi");
 
-  gatsoStop("highlight-prep");
+  Gatso.stop("highlight-prep");
 
 
-  gatsoStart("highlight-find");
+  Gatso.start("highlight-find");
   var ranges = findText(pat);
-  gatsoStop("highlight-find");
+  Gatso.stop("highlight-find");
 
-  gatsoStart("highlight-apply");
+  Gatso.start("highlight-apply");
   highlightRanges(ranges);
-  gatsoStop("highlight-apply");
-  gatsoReport();
-});
+  Gatso.stop("highlight-apply");
+  Gatso.report();
+};
 
-self.port.on('unhighlight', function() {
-  removeHighlight();
-});
 
+// remove highlighing from the page
 function removeHighlight() {
   $('span.highlight').each(function() {
 			this.parentNode.firstChild.nodeName;
@@ -95,14 +83,35 @@ function removeHighlight() {
 				normalize();
 			}
   });
-}
+};
 
 
-
-
-
+/* start CHROME
 $( document ).ready( function() {
-  extract_article();
+  var details = extract_article();
+  chrome.runtime.sendMessage({'method': 'textExtracted', 'pageDetails': details});
 });
 
+chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
+    // Do something
+    //
+    switch( req.method) {
+      case "highlight":
+        doHighlight(req.frags);
+        break;
+      case "noHighlight":
+        removeHighlight();
+        break;
+    }
+});
+end CHROME */
+
+/* start FIREFOX */
+$( document ).ready( function() {
+  var details = extract_article();
+  self.port.emit("textExtracted", pageDetails);
+});
+self.port.on('highlight', function(frags) { doHighlight(frags) });
+self.port.on('noHighlight', function() { removeHighlight() });
+/* end FIREFOX */
 
