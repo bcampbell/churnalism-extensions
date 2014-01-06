@@ -1,5 +1,5 @@
 var log = new LogWrapper(LogWrapper.DEBUG);
-
+var highlightClass = "churn-highlight";
 
 var standardize_quotes = function (text, leftsnglquot, rightsnglquot, leftdblquot, rightdblquot) {
     return text.replace(/[\u2018\u201B]/g, leftsnglquot)
@@ -68,7 +68,7 @@ function doHighlight(frags) {
   Gatso.stop("highlight-find");
 
   Gatso.start("highlight-apply");
-  highlightRanges(ranges);
+  highlightRanges(ranges, highlightClass);
   Gatso.stop("highlight-apply");
   Gatso.report();
 };
@@ -76,7 +76,7 @@ function doHighlight(frags) {
 
 // remove highlighing from the page
 function removeHighlight() {
-  $('span.highlight').each(function() {
+  $("span." + highlightClass).each(function() {
 			this.parentNode.firstChild.nodeName;
 			with(this.parentNode) {
 				replaceChild(this.firstChild, this);

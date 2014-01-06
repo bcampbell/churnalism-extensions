@@ -1,8 +1,8 @@
 // needle: regex to search for
 // rootNode: the starting point (default: document.body)
-function findText(needle,rootNode) {
+function findText(needle, rootNode) {
 
-  if(rootNode===undefined) {
+  if (rootNode===undefined) {
     rootNode = document.body;
   }
   // collect up all the text into a single big string
@@ -11,7 +11,7 @@ function findText(needle,rootNode) {
       rootNode,
       NodeFilter.SHOW_TEXT,
       function(node) {
-        if( /(script|style)/i.test(node.parentElement.tagName)) {
+        if ( /(script|style)/i.test(node.parentElement.tagName)) {
           return  NodeFilter.FILTER_REJECT;
         } else {
           return NodeFilter.FILTER_ACCEPT;
@@ -40,7 +40,7 @@ function findText(needle,rootNode) {
     // set start of range
     for ( var i=0; i<lookup.length; ++i ) {
       var foo=lookup[i];
-      if( m.index >=foo.begin && m.index <foo.end ) {
+      if ( m.index >=foo.begin && m.index <foo.end ) {
         r.setStart(foo.node,m.index-foo.begin);
         break;
       }
@@ -49,7 +49,7 @@ function findText(needle,rootNode) {
     var mEnd = m.index + m[0].length;
     for ( var i=0; i<lookup.length; ++i ) {
       var foo=lookup[i];
-      if( mEnd >foo.begin && mEnd <=foo.end ) {
+      if ( mEnd >foo.begin && mEnd <=foo.end ) {
         r.setEnd(foo.node,mEnd-foo.begin);
         break;
       }
@@ -58,7 +58,7 @@ function findText(needle,rootNode) {
     found.push(r);
 
     // if the regex doesn't have the global flag set, stop now!
-    if(!needle.global) {
+    if (!needle.global) {
       break;
     }
   }
@@ -85,17 +85,18 @@ function rangeIntersectsNode(range, node) {
     }
 }
 
-function highlightRange(r) {
+// wraps a range with <span class="cls">
+function highlightRange(r,cls) {
   // iterate through each text node that intersects the range
   var it = document.createNodeIterator(
       r.commonAncestorContainer,
       NodeFilter.SHOW_TEXT,
       function(node) {
-        if( /(script|style)/i.test(node.parentElement.tagName)) {
+        if ( /(script|style)/i.test(node.parentElement.tagName)) {
           return  NodeFilter.FILTER_REJECT;
         } else {
 
-          if(!rangeIntersectsNode(r,node)) {
+          if (!rangeIntersectsNode(r,node)) {
             return NodeFilter.FILTER_REJECT;
           }
           return NodeFilter.FILTER_ACCEPT;
@@ -115,16 +116,16 @@ function highlightRange(r) {
     after = null;
 
     // order is important here - if we snip the beginning off first, the offsets will all change!
-    if(n==r.endContainer && r.endOffset<n.data.length) {
+    if (n==r.endContainer && r.endOffset<n.data.length) {
       after = mid.splitText(r.endOffset);
     }
-    if(n==r.startContainer && r.startOffset > 0) {
+    if (n==r.startContainer && r.startOffset > 0) {
       before = mid;
       mid = before.splitText(r.startOffset);
     }
 
     var spannode = document.createElement('span');
-    spannode.className = 'highlight';
+    spannode.className = cls;
 
     var c = mid.cloneNode(true);
     spannode.appendChild(c);
@@ -132,12 +133,13 @@ function highlightRange(r) {
   });
 }
 
+// wraps <span class="cls">...</span> around each given range
 // assumes ranges are in sequence and don't overlap
-function highlightRanges(ranges) {
+function highlightRanges(ranges, cls) {
   // in reverse order to avoid screwing up offsets...
   for ( var i=ranges.length-1;i>=0; --i ) {
     var range = ranges[i];
-    highlightRange(range);
+    highlightRange(range, cls);
   }
 }
 
