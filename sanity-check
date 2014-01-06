@@ -31,10 +31,11 @@ checkum $C/panel.css $F/data/panel.css
 checkum $C/content.js $F/data/content.js
 checkum $C/content.css $F/data/content.css
 
-
-
 checkum $C/tabstate.js $F/lib/tabstate.js
 checkum $C/match.js $F/lib/match.js
 checkum $C/gatso.js $F/lib/gatso.js
-
 checkum $C/news_sites.js $F/lib/news_sites.js
+checkum $C/highlight.js $F/data/highlight.js
+checkum $C/logwrapper.js $F/data/logwrapper.js
+checkum $C/extractor.js $F/data/extractor.js
+
