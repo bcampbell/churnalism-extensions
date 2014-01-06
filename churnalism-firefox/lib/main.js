@@ -317,7 +317,7 @@ ourPanel.port.on("noHighlight", function() {
   var state = getState(tab);
   if(state.currentlyHighlighted !== null) {
     state.currentlyHighlighted = null;
-    worker.port.emit("unhighlight");
+    worker.port.emit("noHighlight");
   }
 });
 
