@@ -3,7 +3,7 @@ function reconfig(params) {
 //  console.log("button.js: reconfig");
   var icons = {
     'off': "widget-off.png",
-    'on': "recycle-on.png",
+    'on': "widget-on.png",
   };
 
   var icon_img = document.getElementById("icon-img");

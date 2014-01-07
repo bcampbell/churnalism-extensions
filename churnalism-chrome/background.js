@@ -180,6 +180,11 @@ function doLookup(tabId) {
 /* update the gui (widget, popup) to reflect the current state
  * the state tracker object calls this every time something changes
  * (eg lookup request returns)
+ *
+ * TODO: should use multiple image sizes for the icon, both here and
+ *       in the manifest file... but causes problems on some versions
+ *       (eg chromium version 20) so safest to just use old form for
+ *       now.
  */
 function update_gui(tabId)
 {
@@ -189,12 +194,16 @@ function update_gui(tabId)
 
     // update the Browser Action button
     var badgeText = "";
-    var icon = "icon-off.png";
+    //var icon = {"19": "button-off19.png", "38": "button-off38.png"};
+    var icon = "button-inactive19.png";
     var tooltip = "Churnalism findings";
     if(state && state.isLookupReady()) {
-      icon = "icon.png";
       if(state.lookupResults.associations.length >0) {
+        // icon = {"19": "button-on19.png", "38": "button-on38.png"};
+        icon = "button-on19.png"
         badgeText = "" + state.lookupResults.associations.length;
+      } else {
+        icon = "button-off19.png";
       }
     } else {
     }
