@@ -221,13 +221,24 @@ function update_gui(tabId)
 
     // check for notification reqs
     if( state!==null && state.churnAlertPending ) {
-      // TODO: want to show an infobar here... but API is experimental still :-(
-//      notifyChurn(state);
+      notifyChurn(tab, state);
       state.churnAlertPending = false;
     }
   });
 }
 
+
+function notifyChurn(tab,state) {
+  var n = state.lookupResults.associations.length;
+  var msg = "Uh-oh... this article might be churnalism - ";
+  if( n==1) {
+    msg = msg + "1 match found";
+  } else {
+    msg = msg + n + " matches found";
+  }
+
+  chrome.tabs.sendMessage(tab.id, {"method": "showWarningBar", "msg": msg });
+}
 
 
 
@@ -343,6 +354,12 @@ function initListeners() {
     if(req.method == "textExtracted") {
       // content script has read the article text - we can start a lookup now
       state.textReady(req.pageDetails);
+    } else if (req.method == "showPanel") {
+      // churn warning bar has requested panel is displayed.... tricky on chrome,
+      // since browseraction popups can't be invoked manually.
+      // Will have to implement a separate popup window... ugh.
+      // TODO!
+      console.log("showPanel requested");
     }
   });
 }

@@ -17,5 +17,8 @@
   "browser_action": {
     "default_icon": "button-inactive19.png",
     "default_popup": "panel.html"
-  }
+  },
+  "web_accessible_resources": [
+    "warnbar-icon.png"
+  ]
 }

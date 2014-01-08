@@ -87,6 +87,40 @@ function removeHighlight() {
 
 
 /* start CHROME */
+
+// warning bar - this'd work on firefox, but seems better to use the built-in
+// notification-box. Should replace this with infobar in chrome, whenever it
+// makes it into the main releases...
+function showWarningBar(msg) {
+  $("#churn-warningbar").remove();
+
+  /* note: files used must be whitelisted in manifest */
+  var imgURL = chrome.extension.getURL("warnbar-icon.png");
+  var bar = $('\
+<div id="churn-warningbar">\
+  <div class="churn-inner">\
+    <img src="'+imgURL+'" />\
+    <span class="churn-msg">' + msg + '</span>\
+    <!-- <a class="churn-btn churn-btn-more" href="">More details...</a> -->\
+    <a href="" class="churn-btn churn-btn-close">&#10006;</a>\
+  </div>\
+</div>\
+');
+  bar.prependTo('body').hide().slideDown(200, function() {
+    $("#churn-warningbar .churn-btn-close").click( function() {
+      $("#churn-warningbar").slideUp(200);
+      return false;
+    });
+
+    $("#churn-warningbar .churn-btn-more").click( function() {
+      chrome.runtime.sendMessage({'method': 'showPanel'});
+      $("#churn-warningbar").slideUp(200);
+      return false;
+    });
+  });
+}
+
+
 $( document ).ready( function() {
   var details = extract_article();
   chrome.runtime.sendMessage({'method': 'textExtracted', 'pageDetails': details});
@@ -102,11 +136,16 @@ chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
       case "noHighlight":
         removeHighlight();
         break;
+      case "showWarningBar":
+        showWarningBar(req.msg);
+        break;
     }
 });
+
 /* end CHROME */
 
 /* start FIREFOX
+
 $( document ).ready( function() {
   var details = extract_article();
   self.port.emit("textExtracted", pageDetails);
