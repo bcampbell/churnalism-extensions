@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+MANIFEST=churnalism-chrome/manifest.json
+
+# read version number
+VER=$(cat $MANIFEST | sed -n 's/[ ]*"version":[ ]*"\(.*\)",/\1/p')
+if [ -z "$VER" ]; then
+    echo "ERROR: couldn't get version number from manifest file"
+    exit 1
+fi
+
+# avoid clobbering existing builds
+CRX=churnalism-uk-$VER.crx
+if [ -f $CRX ]; then
+    echo "ERROR: $CRX already exists"
+    exit 1
+fi
+
+#go!
+chromium-browser --pack-extension=churnalism-chrome --pack-extension-key=churnalism-chrome.pem
+mv churnalism-chrome.crx $CRX
+
