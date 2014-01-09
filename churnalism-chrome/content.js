@@ -94,7 +94,7 @@ function removeHighlight() {
 function showWarningBar(msg) {
   $("#churn-warningbar").remove();
 
-  /* note: files used must be whitelisted in manifest */
+  // note: files used must be whitelisted in manifest
   var imgURL = chrome.extension.getURL("warnbar-icon.png");
   var bar = $('\
 <div id="churn-warningbar">\
