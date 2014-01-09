@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+PKG=churnalism-firefox/package.json
+
+#./sanity-check
+
+# read version number
+NAME=$(cat $PKG | sed -n 's/^[ ]*"name":[ ]*"\(.*\)",\?$/\1/p')
+VER=$(cat $PKG | sed -n 's/^[ ]*"version":[ ]*"\(.*\)",\?$/\1/p')
+if [ -z "$NAME" ]; then
+    echo "ERROR: couldn't get name from $PKG"
+    exit 1
+fi
+if [ -z "$VER" ]; then
+    echo "ERROR: couldn't get version number from $PKG"
+    exit 1
+fi
+
+# avoid clobbering existing builds
+XPI=$NAME-$VER.xpi
+if [ -f $XPI ]; then
+    echo "ERROR: $XPI already exists"
+    exit 1
+fi
+
+
+#go!
+cfx xpi --pkgdir churnalism-firefox >/dev/null
+mv churnalism-uk.xpi $XPI
+echo "done: $XPI"
+

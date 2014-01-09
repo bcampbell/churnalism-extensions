@@ -3,14 +3,20 @@
 # script to check the various near-identical files shared between
 # firefox and chrome versions
 
+# TODO:
+# - make sure shared files with comment markers have right sections enabled
+# - check for borkage-causing /*...*/ style comments inside marked blocks
+
 C=churnalism-chrome
 F=churnalism-firefox
 
+STATUS=0
 
 # compare files, but allow marker lines to differ
 function checkum {
     if ! diff <(filt $1) <(filt $2) >/dev/null; then
         echo "diff $1 $2"
+        STATUS=1
     fi
 } 
 
@@ -39,3 +45,4 @@ checkum $C/highlight.js $F/data/highlight.js
 checkum $C/logwrapper.js $F/data/logwrapper.js
 checkum $C/extractor.js $F/data/extractor.js
 
+exit $STATUS
