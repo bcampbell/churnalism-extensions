@@ -27,26 +27,30 @@
     margin: 0;
     padding: 0;
     position: relative;
+    display: block;
+    height: 24px;
+/*    vertical-align: middle; */
 }
 
 #churn-warningbar img {
+    display: inline-block;
     width: 24px;
     height: 24px;
+    vertical-align: middle;
 }
 
 
 #churn-warningbar  .churn-msg {
     display: inline-block;
-    vertical-align: top;
-    /*line-height: 24px; */
-    height: 24px;
+    line-height: 24px;
     margin-right: 16px;
+    vertical-align: middle;
 }
 
 #churn-warningbar .churn-btn {
     display: inline-block;
     vertical-align: top;
-    height: 24px;
+    line-height: 24px;
     margin-left: 8px;
     padding-left: 8px;
     padding-right: 8px;
