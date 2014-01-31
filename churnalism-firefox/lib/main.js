@@ -1,14 +1,13 @@
-var widget = require("widget");
-var tabs = require("tabs");
-var pageMod = require("page-mod");
-var Panel = require("panel").Panel;
-var MatchPattern = require("match-pattern").MatchPattern;
-var data = require("self").data; 
+var widget = require("sdk/widget");
+var tabs = require("sdk/tabs");
+var pageMod = require("sdk/page-mod");
+var Panel = require("sdk/panel").Panel;
+var data = require("sdk/self").data; 
 
 
-var windows = require("windows");
-var SimplePrefs = require("simple-prefs");
-var SimpleStorage = require("simple-storage"); 
+var windows = require("sdk/windows");
+var SimplePrefs = require("sdk/simple-prefs");
+var SimpleStorage = require("sdk/simple-storage"); 
 
 var _ = require("underscore");
 
