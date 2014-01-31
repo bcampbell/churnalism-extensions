@@ -1,5 +1,5 @@
 /* ----- start FIREFOX -----
-var Request = require("request").Request;
+var Request = require("sdk/request").Request;
 var cookSearchResults = require("match").cookSearchResults;
 var addHelpers = require("match").addHelpers;
 ----- end FIREFOX ----- */
@@ -84,7 +84,7 @@ TabState.prototype.textReady = function(pageDetails) {
 
 TabState.prototype.startLookup = function() {
   var state = this;
-  var search_url = "http://new.churnalism.com/search";
+  var search_url = "http://churnalism.com/search";
 
   console.log("startLookup("+this.url+")");
   this.lookupState = "pending";
