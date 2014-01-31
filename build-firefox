@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
+
+./sanity-check
+
 PKG=churnalism-firefox/package.json
 
-#./sanity-check
 
 # read version number
 NAME=$(cat $PKG | sed -n 's/^[ ]*"name":[ ]*"\(.*\)",\?$/\1/p')
